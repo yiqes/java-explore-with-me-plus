@@ -1,24 +1,17 @@
 package ru.practicum.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
-import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ViewStatsDto {
-    @NotBlank
-    @Size(max = 255)
-    private String app;
-    @NotBlank
-    @Size(max = 2048)
-    private String uri;
-    @NotNull
-    @PositiveOrZero
-    private Integer hits;
+    String app;
+    String uri;
+    Integer hits;
 }
