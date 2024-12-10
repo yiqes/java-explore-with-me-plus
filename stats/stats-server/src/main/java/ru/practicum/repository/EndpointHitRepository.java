@@ -23,5 +23,6 @@ public interface EndpointHitRepository extends JpaRepository<EndpointHit, Intege
     List<ViewStatsDto> findUniqueStatsBetween(LocalDateTime start, LocalDateTime end);
 
     Integer countByUriAndTimestampBetween(String uri, LocalDateTime start, LocalDateTime end);
+
     Integer countDistinctIpByUriAndTimestampBetween(String uri, LocalDateTime start, LocalDateTime end);
 }
