@@ -2,7 +2,6 @@ package ru.practicum.service;
 
 import ru.practicum.dto.EndpointHitResponseDto;
 import ru.practicum.dto.EndpointHitSaveRequestDto;
-import ru.practicum.dto.SecondaryViewStatsDto;
 import ru.practicum.dto.ViewStatsDto;
 
 import java.time.LocalDateTime;
