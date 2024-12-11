@@ -16,11 +16,11 @@ import java.util.List;
 @Slf4j
 public class StatClient {
     private final RestClient restClient;
-    private final String STATS_SERVER_URL = "http://localhost:9090";
     private final DateTimeFormatter DATA_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 
     public StatClient() {
+        String STATS_SERVER_URL = "http://localhost:9090";
         this.restClient = RestClient.builder().baseUrl(STATS_SERVER_URL).build();
     }
 
