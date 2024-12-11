@@ -1,18 +1,21 @@
 package ru.practicum.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.EndpointHitDto;
+import ru.practicum.dto.EndpointHitResponseDto;
+import ru.practicum.dto.EndpointHitSaveRequestDto;
 import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.service.StatService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@Slf4j
 public class StatController {
 
     private final StatService service;
@@ -24,20 +27,22 @@ public class StatController {
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
-    public void hit(@RequestBody EndpointHitDto endpointHitDto) {
-        service.hit(endpointHitDto);
+    public EndpointHitResponseDto saveInfo(@RequestBody EndpointHitSaveRequestDto endpointHitDto) {
+        log.info("/POST: Запрос на сохранение {}", endpointHitDto);
+        return service.saveInfo(endpointHitDto);
     }
 
     @GetMapping("/stats")
-    public ResponseEntity<List<ViewStatsDto>> getStats(
+    public List<ViewStatsDto> getStats(
             @RequestParam("start") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
             @RequestParam("end") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
             @RequestParam(value = "uris", required = false) List<String> uris,
             @RequestParam(value = "unique", defaultValue = "false") boolean unique
     ) {
-
-        List<ViewStatsDto> stats = service.getStats(start, end, uris, unique);
-
-        return ResponseEntity.ok(stats);
+        if (uris == null) {
+            uris = new ArrayList<>();
+        }
+        log.info("/GET запрос на получение статистики");
+        return service.getStats(start, end, uris, unique);
     }
 }

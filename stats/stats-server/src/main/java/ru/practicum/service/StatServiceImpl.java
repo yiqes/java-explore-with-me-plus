@@ -1,8 +1,10 @@
 package ru.practicum.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.dto.EndpointHitDto;
-import ru.practicum.dto.ViewStatsDto;
+import ru.practicum.dto.*;
+import ru.practicum.mapper.EndpointHitMapper;
 import ru.practicum.model.EndpointHit;
 import ru.practicum.repository.EndpointHitRepository;
 
@@ -11,46 +13,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class StatServiceImpl implements StatService {
 
     private final EndpointHitRepository endpointHitRepository;
+    private final EndpointHitMapper mapper;
 
-    public StatServiceImpl(EndpointHitRepository endpointHitRepository) {
-        this.endpointHitRepository = endpointHitRepository;
+    @Override
+    public EndpointHitResponseDto saveInfo(EndpointHitSaveRequestDto endpointHitSaveRequestDto) {
+        EndpointHit endpointHit = mapper.toEndpointHit(endpointHitSaveRequestDto);
+        endpointHit = endpointHitRepository.save(endpointHit);
+        return mapper.toResponseDto(endpointHit);
     }
 
     @Override
-    public void hit(EndpointHitDto endpointHitDto) {
-        EndpointHit endpointHit = EndpointHit.builder()
-                .app(endpointHitDto.getApp())
-                .uri(endpointHitDto.getUri())
-                .ip(endpointHitDto.getIp())
-                .timestamp(endpointHitDto.getTimestamp())
-                .build();
+    public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
 
-        endpointHitRepository.save(endpointHit);
-    }
+        List<ViewStatsDto> stats;
 
-    @Override
-    public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
-        List<ViewStatsDto> stats = new ArrayList<>();
-        if (uris == null || uris.isEmpty()) {
-            if (unique) {
-                stats = endpointHitRepository.findUniqueStatsBetween(start, end);
-            } else {
-                stats = endpointHitRepository.findStatsBetween(start, end);
-            }
+        if (unique) {
+            stats = uris.isEmpty() ?
+                    endpointHitRepository.findStatAllWithUniqueIp(start, end) :
+                    endpointHitRepository.findStatWithUniqueIp(start, end, uris);
         } else {
-            for (String uri : uris) {
-                if (unique) {
-                    int hits = endpointHitRepository.countDistinctIpByUriAndTimestampBetween(uri, start, end);
-                    stats.add(new ViewStatsDto(null, uri, hits));
-                } else {
-                    int hits = endpointHitRepository.countByUriAndTimestampBetween(uri, start, end);
-                    stats.add(new ViewStatsDto(null, uri, hits));
-                }
-            }
+            stats = uris.isEmpty() ?
+                    endpointHitRepository.findStatAllWithoutUniqueIp(start, end) :
+                    endpointHitRepository.findStatWithoutUniqueIp(start, end, uris);
         }
-        return stats;
+        return new ArrayList<>(stats);
     }
 }

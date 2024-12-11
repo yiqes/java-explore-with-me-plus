@@ -7,11 +7,12 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ViewStatsDto {
+public class EndpointHitResponseDto {
+
     String app;
     String uri;
-    Long hits;
+    String ip;
 }

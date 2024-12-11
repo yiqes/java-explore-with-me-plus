@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Builder
+@Table(name = "endpoint_hit")
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
@@ -19,23 +20,12 @@ public class EndpointHit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    @Column(nullable = false)
+    @Column(name = "app")
     String app;
-    @Column(nullable = false)
+    @Column(name = "uri")
     String uri;
-    @Column(nullable = false)
+    @Column(name = "ip")
     String ip;
-    @Column(nullable = false)
+    @Column(name = "timestamp")
     LocalDateTime timestamp;
 }
-
-
-
-
-
-
-
-
-
-
-
