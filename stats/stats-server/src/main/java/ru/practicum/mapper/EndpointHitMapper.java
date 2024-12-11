@@ -1,15 +1,11 @@
 package ru.practicum.mapper;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import ru.practicum.dto.*;
 import ru.practicum.model.EndpointHit;
 
 @Mapper(componentModel = "spring")
 public abstract class EndpointHitMapper {
-
-    @Mapping(target = "id", ignore = true)
-    public abstract EndpointHitDto toEndpointHitDto(EndpointHitSaveRequestDto endpointHitSaveRequestDto);
 
     public EndpointHit toEndpointHit(EndpointHitSaveRequestDto endpointHitSaveRequestDto) {
         if (endpointHitSaveRequestDto == null) {
@@ -23,8 +19,6 @@ public abstract class EndpointHitMapper {
         return endpointHit;
     }
 
-    public abstract EndpointHit toEndpointHit(EndpointHitDto endpointHitDto);
-
     public EndpointHitResponseDto toResponseDto(EndpointHit endpointHit) {
         if (endpointHit == null) {
             return null;
@@ -35,6 +29,4 @@ public abstract class EndpointHitMapper {
         endpointHitResponseDto.setIp(endpointHit.getIp());
         return endpointHitResponseDto;
     }
-
-    public abstract ViewStatsDto toViewStatsDto(SecondaryViewStatsDto secondaryViewStatsDto);
 }
