@@ -9,19 +9,16 @@ import org.springframework.web.util.UriComponentsBuilder;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatsDto;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
 @Slf4j
 public class StatClient {
     private final RestClient restClient;
-    private final String STATS_SERVER_URL = "http://localhost:9090";
-    private final DateTimeFormatter DATA_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
 
     public StatClient() {
-        this.restClient = RestClient.builder().baseUrl(STATS_SERVER_URL).build();
+        String clientUrl = "http://localhost:9090";
+        this.restClient = RestClient.builder().baseUrl(clientUrl).build();
     }
 
     public void sendHit(EndpointHitDto endpointHitDto) {
