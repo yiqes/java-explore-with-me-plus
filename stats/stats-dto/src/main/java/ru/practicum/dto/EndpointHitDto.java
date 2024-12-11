@@ -20,18 +20,14 @@ import java.time.LocalDateTime;
 public class EndpointHitDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Integer id;
-    @NotBlank
     @Size(max = 255)
     String app;
-    @NotBlank
     @Size(max = 2048)
     String uri;
-    @NotBlank
     @Pattern(
             regexp = "^((25[0-5]|2[0-4]\\d|1?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|1?\\d\\d?)$",
             message = "Неверный формат IP-адреса"
     )
     String ip;
-    @NotNull
     LocalDateTime timestamp;
 }
