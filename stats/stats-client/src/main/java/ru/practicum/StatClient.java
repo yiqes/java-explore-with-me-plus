@@ -15,7 +15,6 @@ import java.util.List;
 @Slf4j
 public class StatClient {
     private final RestClient restClient;
-    private String writeStatError = "Ошибка записи статистики посещений: ";
 
     public StatClient() {
         String clientUrl = "http://localhost:9090";
@@ -32,8 +31,8 @@ public class StatClient {
                     .toBodilessEntity();
             log.info("Статистика посещений записана");
         } catch (Exception e) {
-            log.error(writeStatError + e.getMessage());
-            throw new RuntimeException(writeStatError + e);
+            log.error(getLogMessage("запись") + e.getMessage());
+            throw new RuntimeException(getLogMessage("запись") + e);
         }
     }
 
@@ -50,10 +49,20 @@ public class StatClient {
             return restClient.get()
                     .uri(uriBuilder.build().toString())
                     .retrieve()
-                    .body(new ParameterizedTypeReference<List<ViewStatsDto>>() {});
+                    .body(new ParameterizedTypeReference<List<ViewStatsDto>>() {
+                    });
         } catch (Exception e) {
-            log.error(writeStatError + e.getMessage());
-            throw new RuntimeException(writeStatError + e);
+            log.error(getLogMessage("чтение") + e.getMessage());
+            throw new RuntimeException(getLogMessage("чтение") + e);
         }
+    }
+
+    public String getLogMessage(String goal) {
+        if (goal.equals("запись")) {
+            return "Ошибка записи статистики посещений: ";
+        } else if (goal.equals("чтение")) {
+            return "Ошибка чтения статистики посещений: ";
+        } else
+            return "Ошибка статистики посещений: ";
     }
 }
