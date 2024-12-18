@@ -10,7 +10,7 @@ import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.user.NewUserMapper;
 import ru.practicum.mapper.user.UserMapper;
-import ru.practicum.model.user.User;
+import ru.practicum.model.User;
 import ru.practicum.repository.UserRepository;
 
 import java.util.List;
