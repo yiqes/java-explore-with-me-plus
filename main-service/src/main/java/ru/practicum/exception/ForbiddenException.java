@@ -1,15 +1,14 @@
 package ru.practicum.exception;
 
+import lombok.Getter;
+
+@Getter
 public class ForbiddenException extends RuntimeException {
-    String reason;
+    final String reason;
 
     public ForbiddenException(final String message, final String reason) {
         super(message);
         this.reason = reason;
-    }
-
-    public String getReason() {
-        return reason;
     }
 
 }
