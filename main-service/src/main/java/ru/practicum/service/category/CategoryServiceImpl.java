@@ -71,4 +71,6 @@ public class CategoryServiceImpl implements CategoryService {
             throw new NotFoundException(CATEGORY_NOT_FOUND, "Объект не существует");
         }
     }
+
+
 }

@@ -1,8 +1,7 @@
 package ru.practicum.dto.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,15 +24,24 @@ public class UpdateEventAdminRequest {
     Long category;
     @Length(min = 20, max = 7000)
     String description;
+    @FutureOrPresent
+   // @NotNull
     @JsonFormat(pattern = "yyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
     Location location;
     Boolean paid;
-    @Min(0)
+    @PositiveOrZero
     Integer participantLimit;
     Boolean requestModeration;
     AdminStateAction stateAction;
     @Length(min = 3, max = 120)
     String title;
 
+    @AssertTrue(message = "Event date must be at least two hours from now")
+    public boolean validateEventDate() {
+        if (eventDate == null) {
+            return true;
+        }
+        return eventDate.isAfter(LocalDateTime.now().plusHours(2));
+    }
 }

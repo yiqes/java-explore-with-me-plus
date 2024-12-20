@@ -1,5 +1,6 @@
 package ru.practicum.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -31,6 +32,7 @@ public class Event {
     LocalDateTime createdOn;
     String description;
     @Column(name = "event_date")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
     @ManyToOne
     @JoinColumn(name = "user_id")

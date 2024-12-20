@@ -1,6 +1,5 @@
 package ru.practicum.dto.event;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
