@@ -7,27 +7,24 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.category.CategoryDto;
-import ru.practicum.dto.event.EventFullDto;
-import ru.practicum.dto.event.EventShortDto;
-import ru.practicum.dto.event.NewEventDto;
-import ru.practicum.dto.event.UpdateEventAdminRequest;
+import ru.practicum.dto.event.*;
 import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.enums.RequestStatus;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
+import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.event.EventMapper;
 import ru.practicum.mapper.event.UtilEventClass;
 import ru.practicum.mapper.request.RequestMapper;
 import ru.practicum.model.*;
-import ru.practicum.repository.EventRepository;
-import ru.practicum.repository.LocationRepository;
-import ru.practicum.repository.RequestRepository;
-import ru.practicum.repository.UserRepository;
+import ru.practicum.repository.*;
 import ru.practicum.service.category.CategoryService;
+import ru.practicum.state.AdminStateAction;
 import ru.practicum.state.EventState;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,12 +41,15 @@ public class EventServiceImpl implements EventService {
     CategoryService categoryService;
     UtilEventClass utilEventClass;
     LocationRepository locationRepository;
+    SearchEventRepository searchEventRepository;
+    CategoryRepository categoryRepository;
 
     @Autowired
     public EventServiceImpl(EventRepository eventRepository, UserRepository userRepository,
                             RequestRepository requestRepository, RequestMapper requestMapper,
                             EventMapper eventMapper, CategoryService categoryService, UtilEventClass utilEventClass,
-                            LocationRepository locationRepository) {
+                            LocationRepository locationRepository, SearchEventRepository searchEventRepository,
+                            CategoryRepository categoryRepository) {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.requestRepository = requestRepository;
@@ -58,6 +58,8 @@ public class EventServiceImpl implements EventService {
         this.categoryService = categoryService;
         this.utilEventClass = utilEventClass;
         this.locationRepository = locationRepository;
+        this.searchEventRepository = searchEventRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
@@ -218,4 +220,85 @@ public class EventServiceImpl implements EventService {
         event = eventRepository.save(event);
         return eventMapper.toEventFullDto(event);
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<EventFullDto> getEventsForAdmin(List<Long> users, List<EventState> states, List<Long> categories,
+                                                LocalDateTime rangeStart, LocalDateTime rangeEnd,
+                                                Integer from, Integer size) {
+        checkDateTime(rangeStart, rangeEnd);
+        SearchEventsParamAdmin searchEventsParamAdmin = SearchEventsParamAdmin.builder()
+                .users(users)
+                .states(states)
+                .categories(categories)
+                .rangeStart(rangeStart)
+                .rangeEnd(rangeEnd)
+                .from(from)
+                .size(size)
+                .build();
+        List<Event> events = searchEventRepository.getEventsByParamForAdmin(searchEventsParamAdmin);
+        return events.stream().map(e -> eventMapper.toEventFullDto(e)).collect(Collectors.toList());
+    }
+
+    @Transactional
+    @Override
+    public EventFullDto updateEventByAdmin(UpdateEventAdminRequest request, Long eventId) {
+        Event event = eventRepository.findById(eventId).orElseThrow(
+                () -> new NotFoundException("Event with id=" + eventId + " not found!", ""));
+        Category category;
+        if (request.getCategory() != null) {
+            category = categoryRepository.findById(request.getCategory()).orElseThrow(() ->
+                    new NotFoundException("Category with id=" + request.getCategory() + " not found!", ""));
+        } else {
+            category = event.getCategory();
+        }
+        Location location = checkAndSaveLocation(request.getLocation());
+        checkTimeBeforeStart(request.getEventDate(), 1);
+        checkTimeBeforeStart(event.getEventDate(), 1);
+
+        if (AdminStateAction.PUBLISH_EVENT.equals(request.getStateAction())) {
+            if (event.getState().equals(EventState.PENDING)) {
+                event = utilEventClass.updateEvent(event, request, category, location);
+                event.setPublishedOn(LocalDateTime.now());
+                event.setState(EventState.PUBLISHED);
+            } else {
+                throw new ConflictException("Event is not PENDING!", "");
+            }
+        } else if (AdminStateAction.REJECT_EVENT.equals(request.getStateAction())) {
+            if (!event.getState().equals(EventState.PUBLISHED)) {
+                event = utilEventClass.updateEvent(event,request, category, location);
+                event.setState(EventState.CANCELED);
+            } else {
+                throw new ConflictException("PUBLISHED events can't be cancelled!", "event should be PENDING or CANCELED");
+
+            }
+        }
+        return eventMapper.toEventFullDto(eventRepository.save(event));
+    }
+
+    private void checkDateTime(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
+        if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
+            throw new ValidationException("start time can't be after end time", "time range is incorrect");
+        }
+    }
+
+    private Location checkAndSaveLocation(Location newLocation) {
+        if (newLocation == null) {
+            return null;
+        }
+        Location location = locationRepository.findByLatAndLon(newLocation.getLat(), newLocation.getLon())
+                .orElse(null);
+        if (location == null) {
+            return locationRepository.save(newLocation);
+        }
+        return location;
+    }
+
+    private void checkTimeBeforeStart(LocalDateTime checkingTime, Integer plusHour) {
+        if (checkingTime != null && checkingTime.isBefore(LocalDateTime.now().plusHours(plusHour))) {
+            throw new ValidationException("updated time should be " + plusHour + "ahead then current time!", "not enough time before event");
+        }
+    }
+
+
 }

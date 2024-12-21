@@ -6,6 +6,7 @@ import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.event.NewEventDto;
 import ru.practicum.dto.event.UpdateEventAdminRequest;
 import ru.practicum.mapper.category.CategoryMapper;
+import ru.practicum.model.Category;
 import ru.practicum.model.Event;
 import ru.practicum.model.Location;
 import ru.practicum.model.User;
@@ -80,5 +81,29 @@ public class UtilEventClass {
         if (updateEventAdminRequest.getTitle() != null) {
             event.setTitle(updateEventAdminRequest.getTitle());
         }
+    }
+
+    public Event updateEvent(Event updatedEvent, UpdateEventAdminRequest request, Category newCategory,
+                             Location location) {
+        return Event.builder()
+                .id(updatedEvent.getId())
+                .annotation(request.getAnnotation() != null ? request.getAnnotation() : updatedEvent.getAnnotation())
+                .category(request.getCategory() != null ? newCategory : updatedEvent.getCategory())
+                .confirmedRequests(updatedEvent.getConfirmedRequests())
+                .createdOn(updatedEvent.getCreatedOn())
+                .description(request.getDescription() != null ? request.getDescription() : updatedEvent.getDescription())
+                .eventDate(request.getEventDate() != null ? request.getEventDate() : updatedEvent.getEventDate())
+                .initiator(updatedEvent.getInitiator())
+                .location(location != null ? location : updatedEvent.getLocation())
+                .paid(request.getPaid() != null ? request.getPaid() : updatedEvent.getPaid())
+                .participantLimit(request.getParticipantLimit() != null ?
+                        request.getParticipantLimit() : updatedEvent.getParticipantLimit())
+                .publishedOn(updatedEvent.getPublishedOn())
+                .requestModeration(request.getRequestModeration() != null ?
+                        request.getRequestModeration() : updatedEvent.getRequestModeration())
+                .state(updatedEvent.getState())
+                .title(request.getTitle() != null ? request.getTitle() : updatedEvent.getTitle())
+                .views(updatedEvent.getViews())
+                .build();
     }
 }
