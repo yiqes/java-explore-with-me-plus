@@ -7,8 +7,6 @@ import org.springframework.stereotype.Component;
 import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.enums.RequestStatus;
 import ru.practicum.exception.NotFoundException;
-import ru.practicum.mapper.event.EventMapper;
-import ru.practicum.mapper.user.UserMapper;
 import ru.practicum.model.Event;
 import ru.practicum.model.Request;
 import ru.practicum.model.User;
@@ -21,16 +19,12 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RequestMapper {
 
-    UserMapper userMapper;
-    EventMapper eventMapper;
     UserRepository userRepository;
     EventRepository eventRepository;
 
     @Autowired
 
-    public RequestMapper(UserMapper userMapper, EventMapper eventMapper, UserRepository userRepository, EventRepository eventRepository) {
-        this.userMapper = userMapper;
-        this.eventMapper = eventMapper;
+    public RequestMapper(UserRepository userRepository, EventRepository eventRepository) {
         this.userRepository = userRepository;
         this.eventRepository = eventRepository;
     }
@@ -38,10 +32,10 @@ public class RequestMapper {
     public ParticipationRequestDto toParticipationRequestDto(Request request) {
         return new ParticipationRequestDto(
                 request.getId(),
-                eventMapper.toEventFullDto(request.getEvent()),
-                userMapper.toUserDto(request.getRequester()),
+                request.getEvent().getId(),
+                request.getRequester().getId(),
                 request.getStatus(),
-                request.getCreatedOn()
+                request.getCreated()
         );
     }
 
@@ -52,7 +46,7 @@ public class RequestMapper {
                 userRepository.findById(requesterId).orElseThrow(
                         () -> new NotFoundException("User with id=" + requesterId + " not found!", "")),
                 participationRequestDto.getStatus(),
-                participationRequestDto.getCreatedOn()
+                participationRequestDto.getCreated()
         );
     }
 
@@ -65,7 +59,7 @@ public class RequestMapper {
         request.setEvent(event);
         request.setRequester(user);
         request.setStatus(setStatus(event));
-        request.setCreatedOn(LocalDateTime.now());
+        request.setCreated(LocalDateTime.now());
 
         return request;
     }

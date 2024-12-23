@@ -34,6 +34,6 @@ public class Request {
     @Column(name = "status", nullable = false)
     RequestStatus status;
 
-    @Column(name = "created_on", nullable = false)
-    LocalDateTime createdOn;
+    @Column(name = "created", nullable = false)
+    LocalDateTime created;
 }

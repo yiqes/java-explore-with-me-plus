@@ -3,9 +3,13 @@ package ru.practicum.mapper.event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.dto.category.CategoryDto;
+import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.NewEventDto;
 import ru.practicum.dto.event.UpdateEventAdminRequest;
 import ru.practicum.mapper.category.CategoryMapper;
+import ru.practicum.mapper.location.LocationMapper;
+import ru.practicum.mapper.user.UserMapper;
+import ru.practicum.mapper.user.UserShortMapper;
 import ru.practicum.model.Category;
 import ru.practicum.model.Event;
 import ru.practicum.model.Location;
@@ -14,6 +18,7 @@ import ru.practicum.service.category.CategoryService;
 import ru.practicum.state.EventState;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Component
 @RequiredArgsConstructor
@@ -22,6 +27,12 @@ public class UtilEventClass {
     private final CategoryMapper categoryMapper;
 
     private final CategoryService categoryService;
+
+    private final UserMapper userMapper;
+
+    private final UserShortMapper userShortMapper;
+
+    private final LocationMapper locationMapper;
 
     public Event toEventFromNewEventDto(NewEventDto newEventDto, User user, CategoryDto category, Location location) {
         if (newEventDto == null || user == null || category == null || location == null) {
@@ -33,7 +44,7 @@ public class UtilEventClass {
         event.setAnnotation(newEventDto.getAnnotation());
         event.setCategory(categoryMapper.toEntity(category));
         event.setConfirmedRequests(0);
-        event.setCreatedOn(LocalDateTime.now());
+        event.setCreatedOn(LocalDateTime.now().withNano(0));
         event.setDescription(newEventDto.getDescription());
         event.setEventDate(newEventDto.getEventDate());
         event.setInitiator(user);
@@ -105,5 +116,33 @@ public class UtilEventClass {
                 .title(request.getTitle() != null ? request.getTitle() : updatedEvent.getTitle())
                 .views(updatedEvent.getViews())
                 .build();
+    }
+
+    public EventFullDto toEventFullDto(Event event) {
+        if ( event == null ) {
+            return null;
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        EventFullDto eventFullDto = new EventFullDto();
+        eventFullDto.setAnnotation(event.getAnnotation() );
+        eventFullDto.setCategory(categoryMapper.toCategoryDto( event.getCategory() ) );
+        eventFullDto.setConfirmedRequests( event.getConfirmedRequests() );
+        eventFullDto.setCreatedOn(event.getCreatedOn().format(formatter));
+        eventFullDto.setDescription(event.getDescription());
+        eventFullDto.setId( event.getId() );
+        eventFullDto.setInitiator(userShortMapper.toUserShortDto(event.getInitiator()));
+        eventFullDto.setLocation(locationMapper.toLocationDto(event.getLocation()));
+        eventFullDto.setPaid( event.getPaid() );
+        eventFullDto.setParticipantLimit( event.getParticipantLimit() );
+        eventFullDto.setPublishedOn(event.getPublishedOn() != null ? event.getPublishedOn().format(formatter) : null);
+        eventFullDto.setRequestModeration( event.getRequestModeration() );
+        eventFullDto.setState( event.getState() );
+        eventFullDto.setTitle( event.getTitle() );
+        eventFullDto.setViews( event.getViews() );
+        eventFullDto.setEventDate(event.getEventDate().format(formatter));
+
+        return eventFullDto;
     }
 }

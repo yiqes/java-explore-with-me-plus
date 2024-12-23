@@ -1,7 +1,6 @@
 package ru.practicum.mapper.event;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventShortDto;
 
@@ -13,9 +12,6 @@ import java.time.format.DateTimeFormatter;
 
 @Mapper(componentModel = "spring")
 public interface EventMapper {
-
-    @Mapping(target = "eventDate", expression = "java(formatDateTime(event.getEventDate()))")
-    public EventFullDto toEventFullDto(Event event);
 
     public Event toEvent(EventFullDto eventFullDto);
 

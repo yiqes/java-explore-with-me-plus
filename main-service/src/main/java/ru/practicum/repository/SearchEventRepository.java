@@ -8,13 +8,8 @@ import jakarta.persistence.criteria.Root;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 import ru.practicum.dto.event.SearchEventsParamAdmin;
-import ru.practicum.model.Category;
 import ru.practicum.model.Event;
-import ru.practicum.model.Location;
-import ru.practicum.model.User;
-import ru.practicum.state.EventState;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

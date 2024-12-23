@@ -19,22 +19,20 @@ public class EventFullDto {
     String annotation;
     CategoryDto category;
     Integer confirmedRequests;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", shape = JsonFormat.Shape.STRING)
     String createdOn;
     String description;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", shape = JsonFormat.Shape.STRING)
     String eventDate;
     Long id;
     UserShortDto initiator;
     LocationDto location;
     Boolean paid;
     Integer participantLimit;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", shape = JsonFormat.Shape.STRING)
     String publishedOn;
     Boolean requestModeration;
     EventState state;
     String title;
     Long views;
-
-
-
-
 }

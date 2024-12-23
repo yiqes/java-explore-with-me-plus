@@ -115,9 +115,16 @@ public class EventServiceImpl implements EventService {
 
     private void requestToEventVerification(User user, Event event) {
         long userId = user.getId();
+
+        if (requestRepository.findAllByRequesterId(userId).stream()
+                .map(r -> r.getEvent().equals(event))
+                .toList().contains(true)) {
+            throw new ConflictException("User with id=" + userId +
+                    " has already made a request for participation in the event with id=" + event.getId(), "");
+                }
         if (userId == event.getInitiator().getId() && event.getInitiator() != null) {
-            throw new IllegalArgumentException("Initiator of event with id=" + userId +
-                    " cannot add request for participation in his own event");
+            throw new ConflictException("Initiator of event with id=" + userId +
+                    " cannot add request for participation in his own event", "");
         }
         if (event.getPublishedOn() == null) {
             throw new ConflictException("", "You cannot participate in an unpublished event id=" + event.getId());
@@ -149,9 +156,12 @@ public class EventServiceImpl implements EventService {
             if (request.getEvent().getId().equals(eventId)) {
                 request.setStatus(status);
                 requestRepository.save(request);
-                confirmedRequests.add(requestMapper.toParticipationRequestDto(request));
-            } else {
-                rejectedRequests.add(requestMapper.toParticipationRequestDto(request));
+
+                if (status == RequestStatus.CONFIRMED) {
+                    confirmedRequests.add(requestMapper.toParticipationRequestDto(request));
+                } else if (status == RequestStatus.REJECTED) {
+                    rejectedRequests.add(requestMapper.toParticipationRequestDto(request));
+                }
             }
         }
         result.setConfirmedRequests(confirmedRequests);
@@ -188,9 +198,8 @@ public class EventServiceImpl implements EventService {
         if (eventDto.getRequestModeration() == null) {
             event.setRequestModeration(true);
         }
-
         event = eventRepository.save(event);
-        return eventMapper.toEventFullDto(event);
+        return utilEventClass.toEventFullDto(event);
     }
 
     @Override
@@ -198,7 +207,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto getEventByIdForUser(Long userId, Long eventId) {
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Event with id=" + eventId + " not found!", ""));
-        return eventMapper.toEventFullDto(event);
+        return utilEventClass.toEventFullDto(event);
     }
 
     @Override
@@ -218,7 +227,7 @@ public class EventServiceImpl implements EventService {
         utilEventClass.updateEventFromDto(event, eventDto);
 
         event = eventRepository.save(event);
-        return eventMapper.toEventFullDto(event);
+        return utilEventClass.toEventFullDto(event);
     }
 
     @Transactional(readOnly = true)
@@ -237,7 +246,7 @@ public class EventServiceImpl implements EventService {
                 .size(size)
                 .build();
         List<Event> events = searchEventRepository.getEventsByParamForAdmin(searchEventsParamAdmin);
-        return events.stream().map(e -> eventMapper.toEventFullDto(e)).collect(Collectors.toList());
+        return events.stream().map(utilEventClass::toEventFullDto).collect(Collectors.toList());
     }
 
     @Transactional
@@ -273,7 +282,7 @@ public class EventServiceImpl implements EventService {
 
             }
         }
-        return eventMapper.toEventFullDto(eventRepository.save(event));
+        return utilEventClass.toEventFullDto(eventRepository.save(event));
     }
 
     private void checkDateTime(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
