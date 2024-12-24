@@ -10,9 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.category.NewCategoryDto;
 import ru.practicum.exception.NotFoundException;
+import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.category.CategoryMapper;
 import ru.practicum.repository.CategoryRepository;
 import ru.practicum.model.Category;
+import ru.practicum.repository.EventRepository;
 
 import java.util.List;
 
@@ -20,11 +22,12 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CategoryServiceImpl implements CategoryService {
 
-    final CategoryRepository categoryRepository;
-    final CategoryMapper categoryMapper;
+    CategoryRepository categoryRepository;
+    EventRepository eventRepository;
+    CategoryMapper categoryMapper;
 
     static final String CATEGORY_NOT_FOUND = "Категория с id = %d не найдена";
 
@@ -40,7 +43,14 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void delete(Long id) {
         validateId(id);
+        // Проверка на связанные события
+        boolean hasEvents = eventRepository.existsByCategoryId(id); // Метод проверки в репозитории
+        if (hasEvents) {
+            log.error("Удаление невозможно: категория с id = {} связана с событиями.", id);
+            throw new ValidationException("Удаление невозможно", "C категорией связано одно или несколько событий.");
+        }
         categoryRepository.deleteById(id);
+        log.info("Категория с id = {} успешно удалена.", id);
     }
 
     @Override

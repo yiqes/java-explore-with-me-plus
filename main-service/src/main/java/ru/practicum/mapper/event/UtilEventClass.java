@@ -119,28 +119,28 @@ public class UtilEventClass {
     }
 
     public EventFullDto toEventFullDto(Event event) {
-        if ( event == null ) {
+        if (event == null) {
             return null;
         }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         EventFullDto eventFullDto = new EventFullDto();
-        eventFullDto.setAnnotation(event.getAnnotation() );
-        eventFullDto.setCategory(categoryMapper.toCategoryDto( event.getCategory() ) );
-        eventFullDto.setConfirmedRequests( event.getConfirmedRequests() );
+        eventFullDto.setAnnotation(event.getAnnotation());
+        eventFullDto.setCategory(categoryMapper.toCategoryDto(event.getCategory()));
+        eventFullDto.setConfirmedRequests(event.getConfirmedRequests());
         eventFullDto.setCreatedOn(event.getCreatedOn().format(formatter));
         eventFullDto.setDescription(event.getDescription());
-        eventFullDto.setId( event.getId() );
+        eventFullDto.setId(event.getId());
         eventFullDto.setInitiator(userShortMapper.toUserShortDto(event.getInitiator()));
         eventFullDto.setLocation(locationMapper.toLocationDto(event.getLocation()));
-        eventFullDto.setPaid( event.getPaid() );
-        eventFullDto.setParticipantLimit( event.getParticipantLimit() );
+        eventFullDto.setPaid(event.getPaid());
+        eventFullDto.setParticipantLimit(event.getParticipantLimit());
         eventFullDto.setPublishedOn(event.getPublishedOn() != null ? event.getPublishedOn().format(formatter) : null);
-        eventFullDto.setRequestModeration( event.getRequestModeration() );
-        eventFullDto.setState( event.getState() );
-        eventFullDto.setTitle( event.getTitle() );
-        eventFullDto.setViews( event.getViews() );
+        eventFullDto.setRequestModeration(event.getRequestModeration());
+        eventFullDto.setState(event.getState());
+        eventFullDto.setTitle(event.getTitle());
+        eventFullDto.setViews(event.getViews());
         eventFullDto.setEventDate(event.getEventDate().format(formatter));
 
         return eventFullDto;

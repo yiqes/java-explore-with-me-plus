@@ -24,17 +24,17 @@ class EventServiceImplTest {
                 LocalDateTime.now().plusHours(1),
                 "Что получится, если соединить кукурузу и полёт? Создатели \"Шоу летающей кукурузы\" испытали эту идею на практике и воплотили в жизнь инновационный проект, предлагающий свежий взгляд на развлечения...",
                 LocalDateTime.now().plusHours(2),
-                new User(1l,
+                new User(1L,
                         "Фёдоров Матвей",
                         "mail@mail.ru"),
-                new Location(1l, 55.25f, 37.62f),
+                new Location(1L, 55.25f, 37.62f),
                 true,
                 10,
                 LocalDateTime.now().minusHours(2),
                 true,
                 EventState.PUBLISHED,
                 "title",
-                999l
+                999L
         );
     }
 }

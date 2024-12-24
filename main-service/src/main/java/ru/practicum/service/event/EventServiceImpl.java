@@ -2,10 +2,14 @@ package ru.practicum.service.event;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.StatClient;
+import ru.practicum.dto.EndpointHitDto;
+import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.event.*;
 import ru.practicum.dto.request.ParticipationRequestDto;
@@ -26,9 +30,14 @@ import ru.practicum.state.EventState;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EventServiceImpl implements EventService {
@@ -43,13 +52,14 @@ public class EventServiceImpl implements EventService {
     LocationRepository locationRepository;
     SearchEventRepository searchEventRepository;
     CategoryRepository categoryRepository;
+    StatClient statClient;
 
     @Autowired
     public EventServiceImpl(EventRepository eventRepository, UserRepository userRepository,
                             RequestRepository requestRepository, RequestMapper requestMapper,
                             EventMapper eventMapper, CategoryService categoryService, UtilEventClass utilEventClass,
                             LocationRepository locationRepository, SearchEventRepository searchEventRepository,
-                            CategoryRepository categoryRepository) {
+                            CategoryRepository categoryRepository, StatClient statClient) {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.requestRepository = requestRepository;
@@ -60,6 +70,7 @@ public class EventServiceImpl implements EventService {
         this.locationRepository = locationRepository;
         this.searchEventRepository = searchEventRepository;
         this.categoryRepository = categoryRepository;
+        this.statClient = statClient;
     }
 
     @Override
@@ -107,8 +118,8 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventRequestStatusUpdateResult requestUpdateStatus(Long userId, Long eventId, EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
-        List<Request> requestList = requestRepository.
-                findByIdInAndEventId(eventRequestStatusUpdateRequest.getRequestIds(), eventId);
+        List<Request> requestList = requestRepository
+                .findByIdInAndEventId(eventRequestStatusUpdateRequest.getRequestIds(), eventId);
         return requestUpdateVerification(eventId, requestList, eventRequestStatusUpdateRequest.getStatus());
     }
 
@@ -120,11 +131,11 @@ public class EventServiceImpl implements EventService {
                 .map(r -> r.getEvent().equals(event))
                 .toList().contains(true)) {
             throw new ConflictException("User with id=" + userId +
-                    " has already made a request for participation in the event with id=" + event.getId(), "");
-                }
+                                        " has already made a request for participation in the event with id=" + event.getId(), "");
+        }
         if (userId == event.getInitiator().getId() && event.getInitiator() != null) {
             throw new ConflictException("Initiator of event with id=" + userId +
-                    " cannot add request for participation in his own event", "");
+                                        " cannot add request for participation in his own event", "");
         }
         if (event.getPublishedOn() == null) {
             throw new ConflictException("", "You cannot participate in an unpublished event id=" + event.getId());
@@ -151,7 +162,7 @@ public class EventServiceImpl implements EventService {
             Event event = request.getEvent();
             if (count >= event.getParticipantLimit()) {
                 throw new ConflictException("The event with id=" + event.getId() +
-                        " has reached the limit of participation requests", "");
+                                            " has reached the limit of participation requests", "");
             }
             if (request.getEvent().getId().equals(eventId)) {
                 request.setStatus(status);
@@ -275,7 +286,7 @@ public class EventServiceImpl implements EventService {
             }
         } else if (AdminStateAction.REJECT_EVENT.equals(request.getStateAction())) {
             if (!event.getState().equals(EventState.PUBLISHED)) {
-                event = utilEventClass.updateEvent(event,request, category, location);
+                event = utilEventClass.updateEvent(event, request, category, location);
                 event.setState(EventState.CANCELED);
             } else {
                 throw new ConflictException("PUBLISHED events can't be cancelled!", "event should be PENDING or CANCELED");
@@ -284,6 +295,88 @@ public class EventServiceImpl implements EventService {
         }
         return utilEventClass.toEventFullDto(eventRepository.save(event));
     }
+
+    @Override
+    public List<EventShortDto> getEvents(String text, List<Long> categories, Boolean paid,
+                                         LocalDateTime rangeStart, LocalDateTime rangeEnd,
+                                         Boolean onlyAvailable, String sort, int from, int size, String clientIp) {
+
+        rangeStart = (rangeStart == null) ? LocalDateTime.of(1970, 1, 1, 0, 0) : rangeStart;
+        rangeEnd = (rangeEnd == null) ? LocalDateTime.of(2099, 12, 31, 23, 59) : rangeEnd;
+
+        log.info("Параметры для SQL: text={}, categories={}, paid={}, rangeStart={}, rangeEnd={}",
+                text, categories, paid, rangeStart, rangeEnd);
+        List<Event> events = eventRepository.findAllEvents(text, categories, paid, rangeStart, rangeEnd);
+
+        // Получаем количество подтвержденных заявок для каждого мероприятия
+        Map<Long, Long> eventRequestCounts = new HashMap<>();
+        for (Event event : events) {
+            long confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, event.getId());
+            eventRequestCounts.put(event.getId(), confirmedRequests);
+        }
+
+        // Фильтруем мероприятия, если onlyAvailable = true
+        List<Event> filteredEvents = new ArrayList<>(events.stream()
+                .filter(event -> {
+                    Long confirmedRequests = eventRequestCounts.get(event.getId());
+                    return !onlyAvailable || event.getParticipantLimit() == null || confirmedRequests < event.getParticipantLimit();
+                })
+                .toList());
+
+        // Получаем статистику просмотров для каждого мероприятия с помощью StatClient
+        Map<Long, Long> eventViews = new HashMap<>();
+        List<String> uris = filteredEvents.stream()
+                .map(event -> "/events/" + event.getId()) // Получаем URI для каждого мероприятия
+                .toList();
+
+        // Запрашиваем статистику просмотров с использованием StatClient
+        List<ViewStatsDto> viewStats = statClient.getStats(rangeStart.toString(), rangeEnd.toString(), uris, true);
+
+        // Обработка случая, если статистика отсутствует
+        if (viewStats == null || viewStats.isEmpty()) {
+            log.warn("Сервис статистики вернул пустой результат или null");
+            viewStats = Collections.emptyList();
+        }
+
+        // Заполняем Map с количеством просмотров
+        for (ViewStatsDto stat : viewStats) {
+            Long eventId = Long.valueOf(stat.getUri().substring(stat.getUri().lastIndexOf("/") + 1));
+            eventViews.put(eventId, stat.getHits());
+        }
+
+        // Сортировка
+        if ("VIEWS".equalsIgnoreCase(sort)) {
+            // Сортировка по количеству просмотров
+            filteredEvents.sort((e1, e2) -> {
+                long views1 = eventViews.getOrDefault(e1.getId(), 0L);
+                long views2 = eventViews.getOrDefault(e2.getId(), 0L);
+                return Long.compare(views2, views1); // по убыванию просмотров
+            });
+        } else if ("EVENT_DATE".equalsIgnoreCase(sort)) {
+            // Сортировка по дате события
+            filteredEvents.sort(Comparator.comparing(Event::getEventDate));
+        }
+
+        // Логируем запрос в статистику
+        statClient.sendHit(new EndpointHitDto("event-service", "/events", clientIp, LocalDateTime.now()));
+
+        // Применяем пагинацию
+        int start = Math.min(from, filteredEvents.size());
+        int end = Math.min(from + size, filteredEvents.size());
+        List<Event> paginatedEvents = filteredEvents.subList(start, end);
+
+        return paginatedEvents.stream()
+                .map(eventMapper::toEventShortDto)
+                .toList();
+    }
+
+    @Override
+    public EventFullDto getEventById(Long eventId) {
+        Event event = eventRepository.findById(eventId).orElseThrow(
+                () -> new NotFoundException("Event with id=" + eventId + " not found!", ""));
+        return utilEventClass.toEventFullDto(event);
+    }
+
 
     private void checkDateTime(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
         if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {

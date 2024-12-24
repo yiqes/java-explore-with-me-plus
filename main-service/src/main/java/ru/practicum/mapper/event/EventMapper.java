@@ -4,18 +4,20 @@ import org.mapstruct.Mapper;
 import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventShortDto;
 
+import ru.practicum.mapper.location.LocationMapper;
+import ru.practicum.mapper.user.UserShortMapper;
 import ru.practicum.model.Event;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {UserShortMapper.class, LocationMapper.class})
 public interface EventMapper {
 
-    public Event toEvent(EventFullDto eventFullDto);
+    Event toEvent(EventFullDto eventFullDto);
 
-    public EventShortDto toEventShortDto(Event event);
+    EventShortDto toEventShortDto(Event event);
 
     default String formatDateTime(LocalDateTime dateTime) {
         if (dateTime == null) {
