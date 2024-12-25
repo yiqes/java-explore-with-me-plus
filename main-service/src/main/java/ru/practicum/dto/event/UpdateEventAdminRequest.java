@@ -25,8 +25,7 @@ public class UpdateEventAdminRequest {
     @Length(min = 20, max = 7000)
     String description;
     @FutureOrPresent
-   // @NotNull
-    @JsonFormat(pattern = "yyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
     Location location;
     Boolean paid;

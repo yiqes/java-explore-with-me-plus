@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "events")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -20,6 +21,7 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "event_id")
     Long id;
+    @Column(name = "annotation")
     String annotation;
     @ManyToOne
     @JoinColumn(name = "category_id")
@@ -28,6 +30,7 @@ public class Event {
     Integer confirmedRequests;
     @Column(name = "created_on")
     LocalDateTime createdOn;
+    @Column(name = "description")
     String description;
     @Column(name = "event_date")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -49,5 +52,4 @@ public class Event {
     EventState state;
     String title;
     Long views;
-
 }

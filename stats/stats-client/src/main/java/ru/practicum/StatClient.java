@@ -17,7 +17,7 @@ public class StatClient {
     private final RestClient restClient;
 
     public StatClient() {
-        String clientUrl = "http://localhost:9090";
+        String clientUrl = "http://host.docker.internal:9090";
         this.restClient = RestClient.builder().baseUrl(clientUrl).build();
     }
 
@@ -43,11 +43,13 @@ public class StatClient {
                     .queryParam("end", end)
                     .queryParam("unique", unique);
             if (uris != null && !uris.isEmpty()) {
-                uriBuilder.queryParam("uris", uris);
+                uris.forEach(uri -> uriBuilder.queryParam("uris", uri));
             }
             log.info("Статистика посещений получена");
+            log.info("Параметры запроса - start: {}, end: {}, unique: {}, uris: {}", start, end, unique, uris);
+            log.info("Запрос URI: {}", uriBuilder.build().toUriString());
             return restClient.get()
-                    .uri(uriBuilder.build().toString())
+                    .uri(uriBuilder.build().toUriString())
                     .retrieve()
                     .body(new ParameterizedTypeReference<List<ViewStatsDto>>() {
                     });
