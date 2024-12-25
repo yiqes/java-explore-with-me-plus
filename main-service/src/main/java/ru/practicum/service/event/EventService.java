@@ -4,10 +4,9 @@ import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.dto.event.NewEventDto;
 import ru.practicum.dto.event.UpdateEventAdminRequest;
-import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.request.EventRequestStatusUpdateResult;
-import ru.practicum.model.Event;
+import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.state.EventState;
 
 import java.time.LocalDateTime;

@@ -24,8 +24,8 @@ import java.util.List;
 @RequestMapping("users/{user-id}/events")
 public class PrivateEventController {
 
-    private final static String USERID = "user-id";
-    private final static String EVENTID = "event-id";
+    private static final String USERID = "user-id";
+    private static final String EVENTID = "event-id";
     private final EventService eventService;
 
     @GetMapping

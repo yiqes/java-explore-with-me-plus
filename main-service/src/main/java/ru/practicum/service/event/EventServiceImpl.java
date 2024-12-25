@@ -7,10 +7,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.category.CategoryDto;
-import ru.practicum.dto.event.*;
-import ru.practicum.dto.request.ParticipationRequestDto;
+import ru.practicum.dto.event.EventFullDto;
+import ru.practicum.dto.event.EventShortDto;
+import ru.practicum.dto.event.NewEventDto;
+import ru.practicum.dto.event.SearchEventsParamAdmin;
+import ru.practicum.dto.event.UpdateEventAdminRequest;
 import ru.practicum.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.request.EventRequestStatusUpdateResult;
+import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.enums.RequestStatus;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
@@ -18,8 +22,17 @@ import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.event.EventMapper;
 import ru.practicum.mapper.event.UtilEventClass;
 import ru.practicum.mapper.request.RequestMapper;
-import ru.practicum.model.*;
-import ru.practicum.repository.*;
+import ru.practicum.model.Category;
+import ru.practicum.model.Event;
+import ru.practicum.model.Location;
+import ru.practicum.model.Request;
+import ru.practicum.model.User;
+import ru.practicum.repository.CategoryRepository;
+import ru.practicum.repository.EventRepository;
+import ru.practicum.repository.LocationRepository;
+import ru.practicum.repository.RequestRepository;
+import ru.practicum.repository.SearchEventRepository;
+import ru.practicum.repository.UserRepository;
 import ru.practicum.service.category.CategoryService;
 import ru.practicum.state.AdminStateAction;
 import ru.practicum.state.EventState;
@@ -107,8 +120,8 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventRequestStatusUpdateResult requestUpdateStatus(Long userId, Long eventId, EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
-        List<Request> requestList = requestRepository.
-                findByIdInAndEventId(eventRequestStatusUpdateRequest.getRequestIds(), eventId);
+        List<Request> requestList = requestRepository
+                .findByIdInAndEventId(eventRequestStatusUpdateRequest.getRequestIds(), eventId);
         return requestUpdateVerification(eventId, requestList, eventRequestStatusUpdateRequest.getStatus());
     }
 
@@ -266,7 +279,7 @@ public class EventServiceImpl implements EventService {
             }
         } else if (AdminStateAction.REJECT_EVENT.equals(request.getStateAction())) {
             if (!event.getState().equals(EventState.PUBLISHED)) {
-                event = utilEventClass.updateEvent(event,request, category, location);
+                event = utilEventClass.updateEvent(event, request, category, location);
                 event.setState(EventState.CANCELED);
             } else {
                 throw new ConflictException("PUBLISHED events can't be cancelled!", "event should be PENDING or CANCELED");
