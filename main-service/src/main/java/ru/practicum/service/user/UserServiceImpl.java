@@ -1,7 +1,9 @@
 package ru.practicum.service.user;
 
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.user.NewUserRequest;
@@ -19,11 +21,12 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserServiceImpl implements UserService {
 
-    private final UserMapper userMapper;
-    private final UserRepository userRepository;
-    private final NewUserMapper newUserRequestMapper;
+    UserMapper userMapper;
+    UserRepository userRepository;
+    NewUserMapper newUserRequestMapper;
 
     @Override
     public UserDto add(NewUserRequest newUserRequest) {
