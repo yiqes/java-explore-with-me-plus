@@ -145,11 +145,11 @@ public class EventServiceImpl implements EventService {
                 .map(r -> r.getEvent().equals(event))
                 .toList().contains(true)) {
             throw new ConflictException("User with id=" + userId +
-                                        " has already made a request for participation in the event with id=" + event.getId(), "");
+                    " has already made a request for participation in the event with id=" + event.getId(), "");
         }
         if (userId == event.getInitiator().getId() && event.getInitiator() != null) {
             throw new ConflictException("Initiator of event with id=" + userId +
-                                        " cannot add request for participation in his own event", "");
+                    " cannot add request for participation in his own event", "");
         }
         if (event.getPublishedOn() == null) {
             throw new ConflictException("", "You cannot participate in an unpublished event id=" + event.getId());
@@ -171,12 +171,12 @@ public class EventServiceImpl implements EventService {
             if (request.getStatus() != RequestStatus.PENDING) {
                 throw new ConflictException("You can only change the status of pending applications", "");
             }
-            long count = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
+            int count = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
 
             Event event = request.getEvent();
             if (count >= event.getParticipantLimit()) {
                 throw new ConflictException("The event with id=" + event.getId() +
-                                            " has reached the limit of participation requests", "");
+                        " has reached the limit of participation requests", "");
             }
             if (request.getEvent().getId().equals(eventId)) {
                 request.setStatus(status);
@@ -191,6 +191,12 @@ public class EventServiceImpl implements EventService {
         }
         result.setConfirmedRequests(confirmedRequests);
         result.setRejectedRequests(rejectedRequests);
+
+        Integer count = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
+        Event event = eventRepository.getReferenceById(eventId);
+        event.setConfirmedRequests(count);
+        eventRepository.save(event);
+
         return result;
     }
 
@@ -317,7 +323,7 @@ public class EventServiceImpl implements EventService {
 
         // Если все параметры отсутствуют, то возвращаем пустой список и записываем статистику
         if (Boolean.TRUE.equals(text == null && categories == null && paid == null && rangeStart == null && rangeEnd == null
-                                && !onlyAvailable && sort == null && from == 0) && size == 10) {
+                && !onlyAvailable && sort == null && from == 0) && size == 10) {
 
             log.info("==> Статистика: вызов метода getEvents с пустыми параметрами от клиента {}", clientIp);
 
@@ -413,11 +419,11 @@ public class EventServiceImpl implements EventService {
 
         // Проверка, что событие опубликовано
         if (!event.getState().equals(EventState.PUBLISHED)) {
-            throw new NotFoundException("Event with id=" + eventId + " is not published yet!","");
+            throw new NotFoundException("Event with id=" + eventId + " is not published yet!", "");
         }
 
         // Увеличение количества просмотров
-        saveEventRequestToStats(event,clientIp);
+        saveEventRequestToStats(event, clientIp);
 
         // Получение количества просмотров из статистики
         long views = getViewsFromStats(event);
@@ -426,7 +432,7 @@ public class EventServiceImpl implements EventService {
         eventRepository.save(event);
 
         // Подсчет подтвержденных запросов
-        long confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED,eventId);
+        long confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
 
         // Создание DTO
         EventFullDto eventFullDto = utilEventClass.toEventFullDto(event);
