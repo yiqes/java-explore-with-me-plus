@@ -1,21 +1,25 @@
-package ru.practicum.dto.user;
+package ru.practicum.dto.compilation;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.dto.event.EventShortDto;
 
-@Getter
+import java.util.List;
+
 @Setter
-@EqualsAndHashCode(of = "email")
+@Getter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserDto {
+public class CompilationDto {
     Long id;
-    String name;
-    String email;
+    List<EventShortDto> events;
+    Boolean pinned = false;
+    String title;
 }
