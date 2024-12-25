@@ -5,10 +5,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventShortDto;
+import ru.practicum.exception.ValidationException;
 import ru.practicum.service.event.EventService;
 
 import java.time.LocalDateTime;
@@ -33,15 +36,32 @@ public class PublicEventController {
             @RequestParam(defaultValue = "0") int from,
             @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request) {
+        // Валидация диапазона дат
+        if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
+            throw new ValidationException("Дата начала rangeStart не может быть позже даты окончания rangeEnd", "");
+        }
+
+        // Валидация параметров пагинации
+        if (from < 0 || size <= 0) {
+            throw new ValidationException("Параметры пагинации 'from' и 'size' должны быть >= 0 и > 0 соответственно", "");
+        }
 
         String clientIp = request.getRemoteAddr();
-
-
 
         log.info("==> GET /events: text={}, categories={}, paid={}, rangeStart={}, rangeEnd={}, onlyAvailable={}, sort={}, from={}, size={}",
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
 
-
         return eventService.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, clientIp);
+    }
+
+    @GetMapping("/{eventId}")
+    public EventFullDto getEventById(@PathVariable Long eventId, HttpServletRequest request) {
+        log.info("Получение информации о событии с id={}", eventId);
+
+        // Получение IP клиента
+        String clientIp = request.getRemoteAddr();
+
+        // Получение события через сервис
+        return eventService.getEventById(eventId, clientIp);
     }
 }

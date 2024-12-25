@@ -42,6 +42,7 @@ import ru.practicum.state.AdminStateAction;
 import ru.practicum.state.EventState;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -371,7 +372,7 @@ public class EventServiceImpl implements EventService {
         }
 
         // Логируем запрос в статистику
-        statClient.sendHit(new EndpointHitDto("event-service", "/events", clientIp, LocalDateTime.now()));
+        statClient.sendHit(new EndpointHitDto("ewm-main-service", "/events", clientIp, LocalDateTime.now()));
 
         // Применяем пагинацию
         int start = Math.min(from, filteredEvents.size());
@@ -384,10 +385,68 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto getEventById(Long eventId) {
+    public EventFullDto getEventById(Long eventId, String clientIp) {
+        // Проверка существования события
         Event event = eventRepository.findById(eventId).orElseThrow(
-                () -> new NotFoundException("Event with id=" + eventId + " not found!", ""));
-        return utilEventClass.toEventFullDto(event);
+                () -> new NotFoundException("Event with id=" + eventId + " not found!", "")
+        );
+
+        // Проверка, что событие опубликовано
+        if (!event.getState().equals(EventState.PUBLISHED)) {
+            throw new NotFoundException("Event with id=" + eventId + " is not published yet!","");
+        }
+
+        // Увеличение количества просмотров
+        saveEventRequestToStats(event,clientIp);
+
+        // Получение количества просмотров из статистики
+        long views = getViewsFromStats(event);
+
+        // Подсчет подтвержденных запросов
+        long confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED,eventId);
+
+        // Создание DTO
+        EventFullDto eventFullDto = utilEventClass.toEventFullDto(event);
+        eventFullDto.setViews(views);
+        eventFullDto.setConfirmedRequests((int) confirmedRequests);
+
+        return eventFullDto;
+    }
+
+    private void saveEventRequestToStats(Event event, String clientIp) {
+        try {
+            EndpointHitDto hitDto = new EndpointHitDto();
+            hitDto.setApp("ewm-main-service");
+            hitDto.setUri("/events/" + event.getId());
+            hitDto.setIp(clientIp);
+            hitDto.setTimestamp(LocalDateTime.now());
+
+            statClient.sendHit(hitDto);
+        } catch (Exception e) {
+            log.error("Ошибка при сохранении статистики для события id=" + event.getId(), e);
+        }
+    }
+
+    private long getViewsFromStats(Event event) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        try {
+            String uri = "/events/" + event.getId();
+            List<ViewStatsDto> stats = statClient.getStats(
+                    event.getCreatedOn().format(formatter), // Дата публикации события
+                    LocalDateTime.now().format(formatter),
+                    List.of(uri),
+                    true
+
+            );
+
+            return stats.stream()
+                    .filter(stat -> stat.getUri().equals(uri))
+                    .mapToLong(ViewStatsDto::getHits)
+                    .sum();
+        } catch (Exception e) {
+            log.error("Ошибка при получении статистики просмотров для события id=" + event.getId(), e);
+            return 0;
+        }
     }
 
 

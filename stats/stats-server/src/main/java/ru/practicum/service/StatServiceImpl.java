@@ -32,7 +32,7 @@ public class StatServiceImpl implements StatService {
     @Override
     @Transactional(readOnly = true)
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-
+        log.info("Получение статистики с параметрами: start={}, end={}, uris={}, unique={}", start, end, uris, unique);
         List<ViewStatsDto> stats;
 
         if (unique) {
@@ -44,6 +44,7 @@ public class StatServiceImpl implements StatService {
                     endpointHitRepository.findStatAllWithoutUniqueIp(start, end) :
                     endpointHitRepository.findStatWithoutUniqueIp(start, end, uris);
         }
+        log.info("Полученные статистические данные: {}", stats);
         return new ArrayList<>(stats);
     }
 }

@@ -9,14 +9,15 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.category.NewCategoryDto;
+import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
-import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.category.CategoryMapper;
 import ru.practicum.repository.CategoryRepository;
 import ru.practicum.model.Category;
 import ru.practicum.repository.EventRepository;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -34,6 +35,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     @Override
     public CategoryDto create(NewCategoryDto newCategoryDto) {
+        if (categoryRepository.existsByName(newCategoryDto.getName())) {
+            throw new ConflictException("Категория с таким именем уже существует", "");
+        }
         Category category = categoryMapper.dtoToCategory(newCategoryDto);
         Category savedCategory = categoryRepository.save(category);
         return categoryMapper.toCategoryDto(savedCategory);
@@ -47,7 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
         boolean hasEvents = eventRepository.existsByCategoryId(id); // Метод проверки в репозитории
         if (hasEvents) {
             log.error("Удаление невозможно: категория с id = {} связана с событиями.", id);
-            throw new ValidationException("Удаление невозможно", "C категорией связано одно или несколько событий.");
+            throw new ConflictException("Удаление невозможно", "C категорией связано одно или несколько событий.");
         }
         categoryRepository.deleteById(id);
         log.info("Категория с id = {} успешно удалена.", id);
@@ -57,6 +61,10 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto update(Long id, NewCategoryDto newCategoryDto) {
         Category existCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(CATEGORY_NOT_FOUND, "Объект не найден"));
+        String newName = newCategoryDto.getName();
+        if (!Objects.equals(newName, existCategory.getName()) && categoryRepository.existsByName(newCategoryDto.getName())) {
+            throw new ConflictException("Категория с таким именем уже существует", "Ошибка обновления категории");
+        }
         existCategory.setName(newCategoryDto.getName());
 
         Category updateCategory = categoryRepository.save(existCategory);

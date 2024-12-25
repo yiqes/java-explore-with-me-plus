@@ -14,4 +14,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
                    "order by category_id OFFSET :from LIMIT :size",
             nativeQuery = true)
     List<Category> getCategories(@Param("from") int from, @Param("size") int size);
+
+    public boolean existsByName(String name);
 }
