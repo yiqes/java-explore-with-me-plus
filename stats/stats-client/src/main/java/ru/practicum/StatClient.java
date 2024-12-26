@@ -17,7 +17,7 @@ public class StatClient {
     private final RestClient restClient;
 
     public StatClient() {
-        String clientUrl = "http://host.docker.internal:9090";
+        String clientUrl = "http://stats-server:9090";
         this.restClient = RestClient.builder().baseUrl(clientUrl).build();
     }
 
