@@ -22,6 +22,7 @@ import java.util.List;
 @Slf4j
 public class AdminEventController {
     private final EventService eventService;
+    private static final String PATH = "event-id";
 
     @GetMapping
     public List<EventFullDto> getEventsAdmin(@RequestParam(required = false) List<Long> users,
@@ -38,9 +39,9 @@ public class AdminEventController {
         return eventService.getEventsForAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
-    @PatchMapping("/{eventId}")
+    @PatchMapping("/{event-id}")
     public EventFullDto updateEventByAdmin(@Valid @RequestBody UpdateEventAdminRequest updateEventAdminRequest,
-                                           @PathVariable @NotNull @Min(1L) Long eventId) {
+                                           @PathVariable(PATH) @NotNull @Min(1L) Long eventId) {
         log.info("==> Admin update event={} by id={}", updateEventAdminRequest, eventId);
         return eventService.updateEventByAdmin(updateEventAdminRequest, eventId);
     }

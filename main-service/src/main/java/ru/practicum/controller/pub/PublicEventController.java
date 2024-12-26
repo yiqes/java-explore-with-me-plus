@@ -54,7 +54,7 @@ public class PublicEventController {
         return eventService.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, clientIp);
     }
 
-    @GetMapping("/{eventId}")
+    @GetMapping("/{event-d}")
     public EventFullDto getEventById(@PathVariable Long eventId, HttpServletRequest request) {
         log.info("Получение информации о событии с id={}", eventId);
 

@@ -22,6 +22,7 @@ import ru.practicum.service.category.CategoryService;
 @RequestMapping(path = "/admin/categories")
 public class AdminCategoryController {
     private final CategoryService categoryService;
+    private static final String PATH = "cat-id";
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -32,15 +33,15 @@ public class AdminCategoryController {
         return categoryDto;
     }
 
-    @DeleteMapping("/{catId}")
+    @DeleteMapping("/{cat-id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void delete(@PathVariable("catId") Long catId) {
+    void delete(@PathVariable(PATH) Long catId) {
         log.info("==> delete for catId = {}", catId);
         categoryService.delete(catId);
     }
 
-    @PatchMapping("/{catId}")
-    CategoryDto update(@PathVariable("catId") Long catId, @Valid @RequestBody NewCategoryDto newCategoryDto) {
+    @PatchMapping("/{cat-id}")
+    CategoryDto update(@PathVariable(PATH) Long catId, @Valid @RequestBody NewCategoryDto newCategoryDto) {
         log.info("==> Admin updating category: {}", newCategoryDto);
         CategoryDto categoryDto = categoryService.update(catId, newCategoryDto);
         log.info("<== Admin updating user: {}", categoryDto);

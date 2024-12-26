@@ -34,8 +34,8 @@ public class PublicCompilationController {
         return compilationDtos;
     }
 
-    @GetMapping("/{compId}")
-    CompilationDto get(@PathVariable("compId") @Positive long compId) {
+    @GetMapping("/{comp-id}")
+    CompilationDto get(@PathVariable("comp-id") @Positive long compId) {
         log.info("==> get by compId = {}", compId);
         CompilationDto compilationDto = compilationService.get(compId);
         log.info("<== get result: {}", compilationDto);

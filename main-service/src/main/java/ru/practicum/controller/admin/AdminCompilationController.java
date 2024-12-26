@@ -24,6 +24,7 @@ import ru.practicum.service.compilation.CompilationService;
 @RequiredArgsConstructor
 public class AdminCompilationController {
 
+    private static final String PATH = "comp-id";
     private final CompilationService compilationService;
 
     @PostMapping()
@@ -36,15 +37,15 @@ public class AdminCompilationController {
         return compilationDto;
     }
 
-    @DeleteMapping("/{compId}")
+    @DeleteMapping("/{comp-id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void delete(@PathVariable @Positive long compId) {
+    void delete(@PathVariable(PATH) @Positive long compId) {
         log.info("==> Admin delete for compId = {}", compId);
         compilationService.delete(compId);
     }
 
-    @PatchMapping("/{compId}")
-    CompilationDto update(@PathVariable @Positive long compId,
+    @PatchMapping("/{comp-id}")
+    CompilationDto update(@PathVariable(PATH) @Positive long compId,
                           @RequestBody @Valid UpdateCompilationRequest updateCompilationRequest) {
         log.info("==> Admin updating category: {}", updateCompilationRequest);
         CompilationDto compilationDto = compilationService.update(compId, updateCompilationRequest);
