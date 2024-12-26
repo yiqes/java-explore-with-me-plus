@@ -145,11 +145,11 @@ public class EventServiceImpl implements EventService {
                 .map(r -> r.getEvent().equals(event))
                 .toList().contains(true)) {
             throw new ConflictException("User with id=" + userId +
-                    " has already made a request for participation in the event with id=" + event.getId(), "");
+                                        " has already made a request for participation in the event with id=" + event.getId(), "");
         }
         if (userId == event.getInitiator().getId() && event.getInitiator() != null) {
             throw new ConflictException("Initiator of event with id=" + userId +
-                    " cannot add request for participation in his own event", "");
+                                        " cannot add request for participation in his own event", "");
         }
         if (event.getPublishedOn() == null) {
             throw new ConflictException("", "You cannot participate in an unpublished event id=" + event.getId());
@@ -176,7 +176,7 @@ public class EventServiceImpl implements EventService {
             Event event = request.getEvent();
             if (count >= event.getParticipantLimit()) {
                 throw new ConflictException("The event with id=" + event.getId() +
-                        " has reached the limit of participation requests", "");
+                                            " has reached the limit of participation requests", "");
             }
             if (request.getEvent().getId().equals(eventId)) {
                 request.setStatus(status);
@@ -323,7 +323,7 @@ public class EventServiceImpl implements EventService {
 
         // Если все параметры отсутствуют, то возвращаем пустой список и записываем статистику
         if (Boolean.TRUE.equals(text == null && categories == null && paid == null && rangeStart == null && rangeEnd == null
-                && !onlyAvailable && sort == null && from == 0) && size == 10) {
+                                && !onlyAvailable && sort == null && from == 0) && size == 10) {
 
             log.info("==> Статистика: вызов метода getEvents с пустыми параметрами от клиента {}", clientIp);
 
@@ -480,12 +480,15 @@ public class EventServiceImpl implements EventService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         try {
             String uri = "/events/" + event.getId();
+            // Добавляем одну секунду к началу и завершению диапазона
+            String start = event.getCreatedOn().minusSeconds(1).format(formatter);
+            String end = LocalDateTime.now().plusSeconds(1).format(formatter);
+
             List<ViewStatsDto> stats = statClient.getStats(
-                    event.getCreatedOn().format(formatter), // Дата публикации события
-                    LocalDateTime.now().format(formatter),
+                    start,
+                    end,
                     List.of(uri),
                     true
-
             );
 
             return stats.stream()
