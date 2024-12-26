@@ -171,7 +171,7 @@ public class EventServiceImpl implements EventService {
             if (request.getStatus() != RequestStatus.PENDING) {
                 throw new ConflictException("You can only change the status of pending applications", "");
             }
-            long count = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
+            int count = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
 
             Event event = request.getEvent();
             if (count >= event.getParticipantLimit()) {
@@ -191,6 +191,12 @@ public class EventServiceImpl implements EventService {
         }
         result.setConfirmedRequests(confirmedRequests);
         result.setRejectedRequests(rejectedRequests);
+
+        Integer count = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
+        Event event = eventRepository.getReferenceById(eventId);
+        event.setConfirmedRequests(count);
+        eventRepository.save(event);
+
         return result;
     }
 
@@ -315,12 +321,31 @@ public class EventServiceImpl implements EventService {
                                          LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                          Boolean onlyAvailable, String sort, int from, int size, String clientIp) {
 
+        // Если все параметры отсутствуют, то возвращаем пустой список и записываем статистику
+        if (Boolean.TRUE.equals(text == null && categories == null && paid == null && rangeStart == null && rangeEnd == null
+                                && !onlyAvailable && sort == null && from == 0) && size == 10) {
+
+            log.info("==> Статистика: вызов метода getEvents с пустыми параметрами от клиента {}", clientIp);
+
+            // Записываем статистику
+            saveEventsRequestToStats(clientIp);
+
+            // Возвращаем пустой список
+            return Collections.emptyList();
+        }
+
         rangeStart = (rangeStart == null) ? LocalDateTime.of(1970, 1, 1, 0, 0) : rangeStart;
         rangeEnd = (rangeEnd == null) ? LocalDateTime.of(2099, 12, 31, 23, 59) : rangeEnd;
 
         log.info("Параметры для SQL: text={}, categories={}, paid={}, rangeStart={}, rangeEnd={}",
                 text, categories, paid, rangeStart, rangeEnd);
-        List<Event> events = eventRepository.findAllEvents(text, categories, paid, rangeStart, rangeEnd);
+        List<Event> events = eventRepository.findAllEvents(
+                text,
+                (categories == null) ? new Long[0] : categories.toArray(new Long[0]), // Передаем пустой массив, если null
+                paid,
+                rangeStart,
+                rangeEnd
+        );
 
         // Получаем количество подтвержденных заявок для каждого мероприятия
         Map<Long, Long> eventRequestCounts = new HashMap<>();
@@ -370,9 +395,10 @@ public class EventServiceImpl implements EventService {
             // Сортировка по дате события
             filteredEvents.sort(Comparator.comparing(Event::getEventDate));
         }
+        log.info("Передаем запрос в статистику");
 
         // Логируем запрос в статистику
-        statClient.sendHit(new EndpointHitDto("ewm-main-service", "/events", clientIp, LocalDateTime.now()));
+        saveEventsRequestToStats(clientIp);
 
         // Применяем пагинацию
         int start = Math.min(from, filteredEvents.size());
@@ -393,17 +419,20 @@ public class EventServiceImpl implements EventService {
 
         // Проверка, что событие опубликовано
         if (!event.getState().equals(EventState.PUBLISHED)) {
-            throw new NotFoundException("Event with id=" + eventId + " is not published yet!","");
+            throw new NotFoundException("Event with id=" + eventId + " is not published yet!", "");
         }
 
         // Увеличение количества просмотров
-        saveEventRequestToStats(event,clientIp);
+        saveEventRequestToStats(event, clientIp);
 
         // Получение количества просмотров из статистики
         long views = getViewsFromStats(event);
 
+        event.setViews(views);
+        eventRepository.save(event);
+
         // Подсчет подтвержденных запросов
-        long confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED,eventId);
+        long confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
 
         // Создание DTO
         EventFullDto eventFullDto = utilEventClass.toEventFullDto(event);
@@ -411,6 +440,26 @@ public class EventServiceImpl implements EventService {
         eventFullDto.setConfirmedRequests((int) confirmedRequests);
 
         return eventFullDto;
+    }
+
+    private void saveEventsRequestToStats(String clientIp) {
+        try {
+            // Создание объекта для статистики
+            log.info("Создание объекта для статистики");
+            EndpointHitDto hitDto = new EndpointHitDto();
+            hitDto.setApp("ewm-main-service");
+            hitDto.setUri("/events");
+            hitDto.setIp(clientIp);
+            hitDto.setTimestamp(LocalDateTime.now());
+
+            // Логируем успешный запрос
+            log.info("Логируем запрос в статистику: URI={}, IP={}", hitDto.getUri(), hitDto.getIp());
+
+            // Отправка статистики
+            statClient.sendHit(hitDto);
+        } catch (Exception e) {
+            log.error("Ошибка при сохранении статистики для URI=/events, IP=" + clientIp, e);
+        }
     }
 
     private void saveEventRequestToStats(Event event, String clientIp) {
@@ -431,12 +480,15 @@ public class EventServiceImpl implements EventService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         try {
             String uri = "/events/" + event.getId();
+            // Добавляем одну секунду к началу и завершению диапазона
+            String start = event.getCreatedOn().minusSeconds(1).format(formatter);
+            String end = LocalDateTime.now().plusSeconds(1).format(formatter);
+
             List<ViewStatsDto> stats = statClient.getStats(
-                    event.getCreatedOn().format(formatter), // Дата публикации события
-                    LocalDateTime.now().format(formatter),
+                    start,
+                    end,
                     List.of(uri),
                     true
-
             );
 
             return stats.stream()

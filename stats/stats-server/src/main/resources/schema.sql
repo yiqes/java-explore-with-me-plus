@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS endpoint_hit;
+
 CREATE TABLE IF NOT EXISTS endpoint_hit (
     id SERIAL PRIMARY KEY,
     app VARCHAR(255),
