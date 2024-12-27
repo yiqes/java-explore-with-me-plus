@@ -22,4 +22,15 @@ public class ErrorHandler {
         String stackTrace = sw.toString();
         return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, throwable.getMessage(), stackTrace);
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIllegalArgumentException(final IllegalArgumentException e) {
+        log.info("500 {}", e.getMessage(), e);
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        String stackTrace = sw.toString();
+        return new ErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage(), stackTrace);
+    }
 }

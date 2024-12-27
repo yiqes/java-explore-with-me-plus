@@ -28,4 +28,12 @@ public class EndpointHitDto {
     )
     String ip;
     LocalDateTime timestamp;
+
+    // Дополнительный конструктор без id
+    public EndpointHitDto(String app, String uri, String ip, LocalDateTime timestamp) {
+        this.app = app;
+        this.uri = uri;
+        this.ip = ip;
+        this.timestamp = timestamp;
+    }
 }
