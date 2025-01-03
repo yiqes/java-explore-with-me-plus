@@ -7,6 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.comment.CommentDto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -20,6 +21,6 @@ public class PublicCommentController {
     public List<CommentDto> getAllCommentsForEvent(@PathVariable @NotNull Long eventId,
                                                    @RequestParam(defaultValue = "0", required = false) Integer from,
                                                    @RequestParam(defaultValue = "10", required = false) Integer size) {
-        return null;
+        return new ArrayList<>();
     }
 }
