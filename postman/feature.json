@@ -7,7 +7,978 @@
 	},
 	"item": [
 		{
-			"name": "Private - Добавление комментария пользователем",
+			"name": "Private",
+			"item": [
+				{
+					"name": "Private - Добавление комментария пользователем",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        let eventBody = rnd.getEvent(category.id);\r",
+									"        let event = await api.addEvent(user.id, eventBody);\r",
+									"        event = await api.publishEvent(event.id);\r",
+									"        const submittedUser = await api.addUser(rnd.getUser());\r",
+									"\r",
+									"        pm.request.removeQueryParams([\"userId\"]);\r",
+									"        pm.request.addQueryParams([\"userId=\" + submittedUser.id]);\r",
+									"\r",
+									"        pm.collectionVariables.set(\"uid\", submittedUser.id);\r",
+									"        pm.collectionVariables.set(\"eid\", event.id);\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            // выполняем наш скрипт\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 201 и данные в формате json\", function () {\r",
+									"    pm.response.to.have.status(201);   \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"var jsonData = pm.response.json();\r",
+									"pm.collectionVariables.set(\"cmntid\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"text\":  \"Текст нового комментария\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/comment/event/:eventId?userId={{uid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"comment",
+								"event",
+								":eventId"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{uid}}",
+									"description": "(Required) id пользователя"
+								}
+							],
+							"variable": [
+								{
+									"key": "eventId",
+									"value": "{{eid}}",
+									"description": "(Required) id комментируемого события"
+								}
+							]
+						},
+						"description": "Обратите внимание:\n- нельзя добавить повторный запрос\n- инициатор события не может добавить запрос на участие в своём событии\n- нельзя участвовать в неопубликованном событии\n- если у события достигнут лимит запросов на участие - необходимо вернуть ошибку\n- если для события отключена пре-модерация запросов на участие, то запрос должен автоматически перейти в состояние подтвержденного"
+					},
+					"response": []
+				},
+				{
+					"name": "Private - Получение информации по комментарию пользователем",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        let eventBody = rnd.getEvent(category.id);\r",
+									"        let event = await api.addEvent(user.id, eventBody);\r",
+									"        event = await api.publishEvent(event.id);\r",
+									"\r",
+									"        const comment  = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"        const comment2 = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"        const comment3 = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"\r",
+									"        pm.request.removeQueryParams([\"userId\"]);\r",
+									"        pm.request.addQueryParams([\"userId=\" + user.id]);\r",
+									"\r",
+									"        pm.collectionVariables.set(\"uid\", user.id);\r",
+									"        pm.collectionVariables.set(\"eid\", event.id);\r",
+									"        pm.collectionVariables.set(\"cmntid\", comment2.id);\r",
+									"        console.log(\"uid = \" + user.id);\r",
+									"        console.log(\"eid = \" + event.id);\r",
+									"        console.log(\"cmntid = \" + comment2.id);\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            // выполняем наш скрипт\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/comment/:cmntid?userId={{uid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"comment",
+								":cmntid"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{uid}}",
+									"description": "(Required) id пользователя"
+								}
+							],
+							"variable": [
+								{
+									"key": "cmntid",
+									"value": "{{cmntid}}",
+									"description": "(Required) id комментария"
+								}
+							]
+						},
+						"description": "Обратите внимание:\n- событие должно быть опубликовано\n- информация о событии должна включать в себя количество просмотров и количество подтвержденных запросов\n- информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики"
+					},
+					"response": []
+				},
+				{
+					"name": "Private - Получение списка комментариев пользователя",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        let eventBody = rnd.getEvent(category.id);\r",
+									"        let event = await api.addEvent(user.id, eventBody);\r",
+									"        event = await api.publishEvent(event.id);\r",
+									"\r",
+									"        const comment  = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"        const comment2 = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"        const comment3 = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"\r",
+									"        pm.collectionVariables.set(\"uid\", user.id);\r",
+									"        pm.collectionVariables.set(\"eid\", event.id);\r",
+									"        pm.collectionVariables.set(\"cmntid\", comment3.id);\r",
+									"        console.log(\"uid = \" + user.id);\r",
+									"        console.log(\"eid = \" + event.id);\r",
+									"        console.log(\"cmntid = \" + comment3.id);\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            // выполняем наш скрипт\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/comment/user/:userId?from=0&size=100",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"comment",
+								"user",
+								":userId"
+							],
+							"query": [
+								{
+									"key": "from",
+									"value": "0",
+									"description": "Количество элементов, которые нужно пропустить для формирования текущего набора"
+								},
+								{
+									"key": "size",
+									"value": "100",
+									"description": "Количество элементов в наборе"
+								}
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{uid}}",
+									"description": "(Required) id пользователя"
+								}
+							]
+						},
+						"description": "Обратите внимание:\n- событие должно быть опубликовано\n- информация о событии должна включать в себя количество просмотров и количество подтвержденных запросов\n- информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики"
+					},
+					"response": []
+				},
+				{
+					"name": "Private - Удаление комментария пользователем",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 204\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        let eventBody = rnd.getEvent(category.id);\r",
+									"        let event = await api.addEvent(user.id, eventBody);\r",
+									"        event = await api.publishEvent(event.id);\r",
+									"\r",
+									"        const comment  = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"  \r",
+									"        pm.request.removeQueryParams([\"userId\"]);\r",
+									"        pm.request.addQueryParams([\"userId=\" + user.id]);\r",
+									"\r",
+									"        pm.collectionVariables.set(\"uid\", user.id);\r",
+									"        pm.collectionVariables.set(\"eid\", event.id);\r",
+									"        pm.collectionVariables.set(\"cmntid\", comment.id);\r",
+									"        console.log(\"uid = \" + user.id);\r",
+									"        console.log(\"eid = \" + event.id);\r",
+									"        console.log(\"cmntid = \" + comment.id);\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            // выполняем наш скрипт\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/comment/:cmntid?userId={{uid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"comment",
+								":cmntid"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{uid}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "cmntid",
+									"value": "{{cmntid}}",
+									"description": "(Required) id комментария"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Admin - Поиск комментариев по тексту",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        let eventBody = rnd.getEvent(category.id);\r",
+									"        let event = await api.addEvent(user.id, eventBody);\r",
+									"        event = await api.publishEvent(event.id);\r",
+									"\r",
+									"        const comment  = await api.addComment(event.id, user.id, \"Текст нового комментария by Admin\");\r",
+									"        const comment2 = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"        const comment3 = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"\r",
+									"        pm.collectionVariables.set(\"uid\", user.id);\r",
+									"        pm.collectionVariables.set(\"eid\", event.id);\r",
+									"        pm.collectionVariables.set(\"cmntid\", comment3.id);\r",
+									"        console.log(\"uid = \" + user.id);\r",
+									"        console.log(\"eid = \" + event.id);\r",
+									"        console.log(\"cmntid = \" + comment3.id);\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            // выполняем наш скрипт\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/comment?text=Текст&from=0&size=100",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"comment"
+							],
+							"query": [
+								{
+									"key": "text",
+									"value": "Текст",
+									"description": "(Required) Текст для поиска"
+								},
+								{
+									"key": "from",
+									"value": "0",
+									"description": "Количество элементов, которые нужно пропустить для формирования текущего набора"
+								},
+								{
+									"key": "size",
+									"value": "100",
+									"description": "Количество элементов в наборе"
+								}
+							]
+						},
+						"description": "Обратите внимание:\n- событие должно быть опубликовано\n- информация о событии должна включать в себя количество просмотров и количество подтвержденных запросов\n- информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики"
+					},
+					"response": []
+				},
+				{
+					"name": "Admin - Получение информации по комментарию",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        let eventBody = rnd.getEvent(category.id);\r",
+									"        let event = await api.addEvent(user.id, eventBody);\r",
+									"        event = await api.publishEvent(event.id);\r",
+									"\r",
+									"        const comment  = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"        const comment2 = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"        const comment3 = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"\r",
+									"        pm.collectionVariables.set(\"uid\", user.id);\r",
+									"        pm.collectionVariables.set(\"eid\", event.id);\r",
+									"        pm.collectionVariables.set(\"cmntid\", comment3.id);\r",
+									"        console.log(\"uid = \" + user.id);\r",
+									"        console.log(\"eid = \" + event.id);\r",
+									"        console.log(\"cmntid = \" + comment3.id);\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            // выполняем наш скрипт\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/comment/:cmntid",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"comment",
+								":cmntid"
+							],
+							"variable": [
+								{
+									"key": "cmntid",
+									"value": "{{cmntid}}",
+									"description": "(Required) id комментария"
+								}
+							]
+						},
+						"description": "Обратите внимание:\n- событие должно быть опубликовано\n- информация о событии должна включать в себя количество просмотров и количество подтвержденных запросов\n- информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики"
+					},
+					"response": []
+				},
+				{
+					"name": "Admin - Получение списка комментариев пользователя",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        let eventBody = rnd.getEvent(category.id);\r",
+									"        let event = await api.addEvent(user.id, eventBody);\r",
+									"        event = await api.publishEvent(event.id);\r",
+									"\r",
+									"        const comment  = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"        const comment2 = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"        const comment3 = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"\r",
+									"        pm.collectionVariables.set(\"uid\", user.id);\r",
+									"        pm.collectionVariables.set(\"eid\", event.id);\r",
+									"        pm.collectionVariables.set(\"cmntid\", comment3.id);\r",
+									"        console.log(\"uid = \" + user.id);\r",
+									"        console.log(\"eid = \" + event.id);\r",
+									"        console.log(\"cmntid = \" + comment3.id);\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            // выполняем наш скрипт\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/comment/user/:userId?from=0&size=100",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"comment",
+								"user",
+								":userId"
+							],
+							"query": [
+								{
+									"key": "from",
+									"value": "0",
+									"description": "Количество элементов, которые нужно пропустить для формирования текущего набора"
+								},
+								{
+									"key": "size",
+									"value": "100",
+									"description": "Количество элементов в наборе"
+								}
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{uid}}",
+									"description": "(Required) id пользователя"
+								}
+							]
+						},
+						"description": "Обратите внимание:\n- событие должно быть опубликовано\n- информация о событии должна включать в себя количество просмотров и количество подтвержденных запросов\n- информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики"
+					},
+					"response": []
+				},
+				{
+					"name": "Admin - Удаление комментария",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 204\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        let eventBody = rnd.getEvent(category.id);\r",
+									"        let event = await api.addEvent(user.id, eventBody);\r",
+									"        event = await api.publishEvent(event.id);\r",
+									"\r",
+									"        const comment  = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"  \r",
+									"        pm.collectionVariables.set(\"uid\", user.id);\r",
+									"        pm.collectionVariables.set(\"eid\", event.id);\r",
+									"        pm.collectionVariables.set(\"cmntid\", comment.id);\r",
+									"        console.log(\"uid = \" + user.id);\r",
+									"        console.log(\"eid = \" + event.id);\r",
+									"        console.log(\"cmntid = \" + comment.id);\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            // выполняем наш скрипт\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/comment/:cmntid",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"comment",
+								":cmntid"
+							],
+							"variable": [
+								{
+									"key": "cmntid",
+									"value": "{{cmntid}}",
+									"description": "(Required) id комментария"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Public",
+			"item": [
+				{
+					"name": "Public - Получение списка комментариев по событию",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        let eventBody = rnd.getEvent(category.id);\r",
+									"        let event = await api.addEvent(user.id, eventBody);\r",
+									"        event = await api.publishEvent(event.id);\r",
+									"\r",
+									"        const comment  = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"        const comment2 = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"        const comment3 = await api.addComment(event.id, user.id, rnd.getComment());\r",
+									"\r",
+									"        pm.collectionVariables.set(\"uid\", user.id);\r",
+									"        pm.collectionVariables.set(\"eid\", event.id);\r",
+									"        pm.collectionVariables.set(\"cmntid\", comment.id);\r",
+									"        console.log(\"uid = \" + user.id);\r",
+									"        console.log(\"eid = \" + event.id);\r",
+									"        console.log(\"cmntid = \" + comment3.id);\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            // выполняем наш скрипт\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/comment/event/:eventId?from=0&size=100",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"comment",
+								"event",
+								":eventId"
+							],
+							"query": [
+								{
+									"key": "from",
+									"value": "0",
+									"description": "количество элементов, которые нужно пропустить для формирования текущего набора"
+								},
+								{
+									"key": "size",
+									"value": "100",
+									"description": "количество элементов в наборе"
+								}
+							],
+							"variable": [
+								{
+									"key": "eventId",
+									"value": "{{eid}}",
+									"description": "(Required) id комментируемого события"
+								}
+							]
+						},
+						"description": "Обратите внимание:\n- событие должно быть опубликовано\n- информация о событии должна включать в себя количество просмотров и количество подтвержденных запросов\n- информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Private - Изменение комментария пользователем",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -23,246 +994,23 @@
 							"        let eventBody = rnd.getEvent(category.id);\r",
 							"        let event = await api.addEvent(user.id, eventBody);\r",
 							"        event = await api.publishEvent(event.id);\r",
-							"        const submittedUser = await api.addUser(rnd.getUser());\r",
+							"\r",
+							"        const comment  = await api.addComment(event.id, user.id, rnd.getComment());\r",
+							"        const comment2 = await api.addComment(event.id, user.id, rnd.getComment());\r",
+							"        const comment3 = await api.addComment(event.id, user.id, rnd.getComment());\r",
+							"\r",
 							"        pm.request.removeQueryParams([\"userId\"]);\r",
-							"        pm.request.addQueryParams([\"userId=\" + submittedUser.id]);\r",
-							"        pm.collectionVariables.set(\"uid\", submittedUser.id);\r",
+							"        pm.request.addQueryParams([\"userId=\" + user.id]);\r",
+							"\r",
+							"        pm.collectionVariables.set(\"uid\", user.id);\r",
 							"        pm.collectionVariables.set(\"eid\", event.id);\r",
+							"        pm.collectionVariables.set(\"cmntid\", comment3.id);\r",
+							"        console.log(\"uid = \" + user.id);\r",
+							"        console.log(\"eid = \" + event.id);\r",
+							"        console.log(\"cmntid = \" + comment3.id);\r",
 							"    } catch(err) {\r",
 							"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
 							"    }\r",
-							"};\r",
-							"\r",
-							"const interval = setInterval(() => {}, 1000);\r",
-							"\r",
-							"setTimeout(async () => \r",
-							"    {\r",
-							"        try {\r",
-							"            // выполняем наш скрипт\r",
-							"            await main();\r",
-							"        } catch (e) {\r",
-							"            console.error(e);\r",
-							"        } finally {\r",
-							"            clearInterval(interval);\r",
-							"        }\r",
-							"    },  \r",
-							"    100 \r",
-							");"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Ответ должен содержать код статуса 201 и данные в формате json\", function () {\r",
-							"    pm.response.to.have.status(201);   \r",
-							"    pm.response.to.be.withBody;\r",
-							"    pm.response.to.be.json;\r",
-							"});\r",
-							"\r",
-							"var jsonData = pm.response.json();\r",
-							"pm.environment.set(\"cmntid\", jsonData.id);"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"text\":  \"Текст нового комментария\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{baseUrl}}/comment/event/:eventId?userId={{uid}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"comment",
-						"event",
-						":eventId"
-					],
-					"query": [
-						{
-							"key": "userId",
-							"value": "{{uid}}",
-							"description": "(Required) id пользователя"
-						}
-					],
-					"variable": [
-						{
-							"key": "eventId",
-							"value": "{{eid}}",
-							"description": "(Required) id комментируемого события"
-						}
-					]
-				},
-				"description": "Обратите внимание:\n- нельзя добавить повторный запрос\n- инициатор события не может добавить запрос на участие в своём событии\n- нельзя участвовать в неопубликованном событии\n- если у события достигнут лимит запросов на участие - необходимо вернуть ошибку\n- если для события отключена пре-модерация запросов на участие, то запрос должен автоматически перейти в состояние подтвержденного"
-			},
-			"response": []
-		},
-		{
-			"name": "Private - Получение информации по комментарию пользователем",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
-							"    pm.response.to.be.ok;    \r",
-							"    pm.response.to.be.withBody;\r",
-							"    pm.response.to.be.json;\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json"
-					}
-				],
-				"url": {
-					"raw": "{{baseUrl}}/comment/:cmntid?userId={{uid}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"comment",
-						":cmntid"
-					],
-					"query": [
-						{
-							"key": "userId",
-							"value": "{{uid}}",
-							"description": "(Required) id пользователя"
-						}
-					],
-					"variable": [
-						{
-							"key": "cmntid",
-							"value": "{{cmntid}}",
-							"description": "(Required) id комментария"
-						}
-					]
-				},
-				"description": "Обратите внимание:\n- событие должно быть опубликовано\n- информация о событии должна включать в себя количество просмотров и количество подтвержденных запросов\n- информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики"
-			},
-			"response": []
-		},
-		{
-			"name": "Private - Получение списка комментариев пользователя",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
-							"    pm.response.to.be.ok;    \r",
-							"    pm.response.to.be.withBody;\r",
-							"    pm.response.to.be.json;\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json"
-					}
-				],
-				"url": {
-					"raw": "{{baseUrl}}/comment/user/:userId?from=0&size=100",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"comment",
-						"user",
-						":userId"
-					],
-					"query": [
-						{
-							"key": "from",
-							"value": "0",
-							"description": "Количество элементов, которые нужно пропустить для формирования текущего набора"
-						},
-						{
-							"key": "size",
-							"value": "100",
-							"description": "Количество элементов в наборе"
-						}
-					],
-					"variable": [
-						{
-							"key": "userId",
-							"value": "{{uid}}",
-							"description": "(Required) id пользователя"
-						}
-					]
-				},
-				"description": "Обратите внимание:\n- событие должно быть опубликовано\n- информация о событии должна включать в себя количество просмотров и количество подтвержденных запросов\n- информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики"
-			},
-			"response": []
-		},
-		{
-			"name": "Private - Изменение комментария пользователем",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"const main = async () => {\r",
-							"    const api = new API(pm);\r",
-							"    const rnd = new RandomUtils();\r",
 							"};\r",
 							"\r",
 							"const interval = setInterval(() => {}, 1000);\r",
@@ -343,430 +1091,6 @@
 					]
 				},
 				"description": "Обратите внимание:\n- событие должно быть опубликовано\n- информация о событии должна включать в себя количество просмотров и количество подтвержденных запросов\n- информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики"
-			},
-			"response": []
-		},
-		{
-			"name": "Admin - Поиск комментариев по тексту",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
-							"    pm.response.to.be.ok;    \r",
-							"    pm.response.to.be.withBody;\r",
-							"    pm.response.to.be.json;\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json"
-					}
-				],
-				"url": {
-					"raw": "{{baseUrl}}/admin/comment?text=Текст&from=0&size=100",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"admin",
-						"comment"
-					],
-					"query": [
-						{
-							"key": "text",
-							"value": "Текст",
-							"description": "(Required) Текст для поиска"
-						},
-						{
-							"key": "from",
-							"value": "0",
-							"description": "Количество элементов, которые нужно пропустить для формирования текущего набора"
-						},
-						{
-							"key": "size",
-							"value": "100",
-							"description": "Количество элементов в наборе"
-						}
-					]
-				},
-				"description": "Обратите внимание:\n- событие должно быть опубликовано\n- информация о событии должна включать в себя количество просмотров и количество подтвержденных запросов\n- информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики"
-			},
-			"response": []
-		},
-		{
-			"name": "Private - Удаление комментария пользователем",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Ответ должен содержать код статуса 204\", function () {\r",
-							"    pm.response.to.have.status(204);\r",
-							"});"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "DELETE",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json"
-					}
-				],
-				"url": {
-					"raw": "{{baseUrl}}/comment/:cmntid?userId={{uid}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"comment",
-						":cmntid"
-					],
-					"query": [
-						{
-							"key": "userId",
-							"value": "{{uid}}"
-						}
-					],
-					"variable": [
-						{
-							"key": "cmntid",
-							"value": "{{cmntid}}",
-							"description": "(Required) id комментария"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Public - Получение списка комментариев по событию",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"const main = async () => {\r",
-							"    const api = new API(pm);\r",
-							"    const rnd = new RandomUtils();\r",
-							"\r",
-							"    try {\r",
-							"        const user = await api.addUser(rnd.getUser());\r",
-							"        const category = await api.addCategory(rnd.getCategory());\r",
-							"        let eventBody = rnd.getEvent(category.id);\r",
-							"        let event = await api.addEvent(user.id, eventBody);\r",
-							"        event = await api.publishEvent(event.id);\r",
-							"        \r",
-							"        const comment  = await api.addComment(event.id, user.id, rnd.getComment());\r",
-							"        const comment2 = await api.addComment(event.id, user.id, rnd.getComment());\r",
-							"        const comment3 = await api.addComment(event.id, user.id, rnd.getComment());\r",
-							"\r",
-							"        pm.request.removeQueryParams([\"userId\"]);\r",
-							"        pm.request.addQueryParams([\"userId=\" + user.id]);\r",
-							"        pm.collectionVariables.set(\"uid\", user.id);\r",
-							"        pm.collectionVariables.set(\"eid\", event.id);\r",
-							"        pm.collectionVariables.set(\"cmntid\", comment.id);\r",
-							"    } catch(err) {\r",
-							"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
-							"    }\r",
-							"};\r",
-							"\r",
-							"const interval = setInterval(() => {}, 1000);\r",
-							"\r",
-							"setTimeout(async () => \r",
-							"    {\r",
-							"        try {\r",
-							"            // выполняем наш скрипт\r",
-							"            await main();\r",
-							"        } catch (e) {\r",
-							"            console.error(e);\r",
-							"        } finally {\r",
-							"            clearInterval(interval);\r",
-							"        }\r",
-							"    },  \r",
-							"    100 \r",
-							");"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
-							"    pm.response.to.be.ok;    \r",
-							"    pm.response.to.be.withBody;\r",
-							"    pm.response.to.be.json;\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json"
-					}
-				],
-				"url": {
-					"raw": "{{baseUrl}}/comment/user/:eventId?from=0&size=100",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"comment",
-						"user",
-						":eventId"
-					],
-					"query": [
-						{
-							"key": "from",
-							"value": "0",
-							"description": "количество элементов, которые нужно пропустить для формирования текущего набора"
-						},
-						{
-							"key": "size",
-							"value": "100",
-							"description": "количество элементов в наборе"
-						}
-					],
-					"variable": [
-						{
-							"key": "eventId",
-							"value": "{{eid}}",
-							"description": "(Required) id комментируемого события"
-						}
-					]
-				},
-				"description": "Обратите внимание:\n- событие должно быть опубликовано\n- информация о событии должна включать в себя количество просмотров и количество подтвержденных запросов\n- информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики"
-			},
-			"response": []
-		},
-		{
-			"name": "Admin - Получение информации по комментарию",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
-							"    pm.response.to.be.ok;    \r",
-							"    pm.response.to.be.withBody;\r",
-							"    pm.response.to.be.json;\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json"
-					}
-				],
-				"url": {
-					"raw": "{{baseUrl}}/admin/comment/:cmntid",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"admin",
-						"comment",
-						":cmntid"
-					],
-					"variable": [
-						{
-							"key": "cmntid",
-							"value": "{{cmntid}}",
-							"description": "(Required) id комментария"
-						}
-					]
-				},
-				"description": "Обратите внимание:\n- событие должно быть опубликовано\n- информация о событии должна включать в себя количество просмотров и количество подтвержденных запросов\n- информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики"
-			},
-			"response": []
-		},
-		{
-			"name": "Admin - Получение списка комментариев пользователя",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
-							"    pm.response.to.be.ok;    \r",
-							"    pm.response.to.be.withBody;\r",
-							"    pm.response.to.be.json;\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json"
-					}
-				],
-				"url": {
-					"raw": "{{baseUrl}}/admin/comment/user/:userId?from=0&size=100",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"admin",
-						"comment",
-						"user",
-						":userId"
-					],
-					"query": [
-						{
-							"key": "from",
-							"value": "0",
-							"description": "Количество элементов, которые нужно пропустить для формирования текущего набора"
-						},
-						{
-							"key": "size",
-							"value": "100",
-							"description": "Количество элементов в наборе"
-						}
-					],
-					"variable": [
-						{
-							"key": "userId",
-							"value": "{{uid}}",
-							"description": "(Required) id пользователя"
-						}
-					]
-				},
-				"description": "Обратите внимание:\n- событие должно быть опубликовано\n- информация о событии должна включать в себя количество просмотров и количество подтвержденных запросов\n- информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики"
-			},
-			"response": []
-		},
-		{
-			"name": "Admin - Удаление комментария",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Ответ должен содержать код статуса 204\", function () {\r",
-							"    pm.response.to.have.status(204);\r",
-							"});"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "DELETE",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json"
-					}
-				],
-				"url": {
-					"raw": "{{baseUrl}}/admin/comment/:cmntid",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"admin",
-						"comment",
-						":cmntid"
-					],
-					"variable": [
-						{
-							"key": "cmntid",
-							"value": "{{cmntid}}",
-							"description": "(Required) id комментария"
-						}
-					]
-				}
 			},
 			"response": []
 		}
