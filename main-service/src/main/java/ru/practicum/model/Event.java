@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.constant.Constant;
 import ru.practicum.state.EventState;
 
 import java.time.LocalDateTime;
@@ -33,7 +34,7 @@ public class Event {
     @Column(name = "description")
     String description;
     @Column(name = "event_date")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = Constant.PATTERN_DATE)
     LocalDateTime eventDate;
     @ManyToOne
     @JoinColumn(name = "user_id")
