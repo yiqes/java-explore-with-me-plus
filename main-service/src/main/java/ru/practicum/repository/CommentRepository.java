@@ -21,4 +21,18 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findAllByEventId(@Param("eventId") Long eventId,
                                    @Param("from") int from,
                                    @Param("size") int size);
+
+    @Query(
+            value = """
+                    SELECT *
+                    FROM comments c
+                    WHERE c.author_id = :userId
+                    ORDER BY c.created DESC
+                    LIMIT :size OFFSET :from
+                    """,
+            nativeQuery = true
+    )
+    List<Comment> findAllByUserId(@Param("userId") Long userId,
+                                  @Param("from") int from,
+                                  @Param("size") int size);
 }

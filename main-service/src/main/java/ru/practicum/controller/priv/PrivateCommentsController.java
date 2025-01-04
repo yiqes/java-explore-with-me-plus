@@ -8,8 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.comment.CommentDto;
+import ru.practicum.dto.comment.CommentFullDto;
 import ru.practicum.dto.comment.NewCommentDto;
 import ru.practicum.dto.comment.UpdateCommentDto;
+import ru.practicum.service.comment.CommentService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,22 +23,23 @@ import java.util.List;
 @Slf4j
 public class PrivateCommentsController {
 
+    private final CommentService commentService;
+
     @PostMapping("/event/{eventId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommentDto createComment(@PathVariable @NotNull Long eventId,
-                                    @RequestParam @NotNull Long userId,
-                                    @Valid @RequestBody NewCommentDto newCommentDto) {
-        log.info("");
-        CommentDto result = new CommentDto();
-        result.setId(1L);
-        return result;
+    public CommentFullDto createComment(@PathVariable @NotNull Long eventId,
+                                        @RequestParam @NotNull Long userId,
+                                        @Valid @RequestBody NewCommentDto newCommentDto) {
+        log.info("Private: post comment {}, userId {}, eventId {}", newCommentDto, userId, eventId);
+
+        return commentService.createComment(newCommentDto, eventId, userId);
     }
 
     @GetMapping("/{commentId}")
-    public CommentDto getComment(@PathVariable @NotNull Long commentId,
+    public CommentFullDto getComment(@PathVariable @NotNull Long commentId,
                                  @RequestParam @NotNull Long userId) {
-        log.info("");
-        return new CommentDto();
+        log.info("Private: get comment {}, userId {}", commentId, userId);
+        return commentService.getComment(commentId, userId);
     }
 
 
@@ -44,8 +47,8 @@ public class PrivateCommentsController {
     public CommentDto updateComment(@PathVariable @NotNull Long commentId,
                                     @RequestParam @NotNull Long userId,
                                     @Valid @RequestBody UpdateCommentDto updateCommentDto) {
-        log.info("");
-        return new CommentDto();
+        log.info("Private: patch comment {}, userId {}", updateCommentDto, userId);
+        return commentService.updateComment(commentId, userId, updateCommentDto);
     }
 
 
@@ -53,15 +56,16 @@ public class PrivateCommentsController {
     public List<CommentDto> getAllCommentsForUser(@PathVariable @NotNull Long userId,
                                                   @RequestParam(defaultValue = "0", required = false) Integer from,
                                                   @RequestParam(defaultValue = "10", required = false) Integer size) {
-        log.info("");
-        return new ArrayList<>();
+        log.info("Private: get comments for user {}, from {}, size {}", userId, from, size);
+        return commentService.getAllCommentsForUser(userId, from, size);
     }
 
     @DeleteMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(@PathVariable @NotNull Long commentId,
                               @RequestParam @NotNull Long userId) {
-        log.info("");
+        log.info("Private: delete comment {}, userId {}", commentId, userId);
+        commentService.deleteComment(commentId, userId);
     }
 
 }
