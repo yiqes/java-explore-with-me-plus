@@ -3,11 +3,13 @@ package ru.practicum.controller.admin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.comment.CommentFullDto;
+import ru.practicum.service.comment.CommentService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,11 +20,12 @@ import java.util.List;
 @Validated
 @Slf4j
 public class AdminCommentController {
+    private final CommentService commentService;
 
     @GetMapping("/{commentId}")
     public CommentFullDto getCommentForAdmin(@PathVariable @NotNull Long commentId) {
         log.info("==> Comment with id={} for Admin was asked", commentId);
-        return new CommentFullDto();
+        return commentService.getCommentForAdmin(commentId);
     }
 
     @GetMapping("/user/{userId}")
@@ -30,7 +33,7 @@ public class AdminCommentController {
                                                            @RequestParam(defaultValue = "0", required = false) Integer from,
                                                            @RequestParam(defaultValue = "10", required = false) Integer size) {
         log.info("==> Comments for user with id={} from={} size={} for Admin was asked", userId, from, size);
-        return new ArrayList<>();
+        return commentService.getAllUserCommentsForAdmin(userId, from, size);
     }
 
     @GetMapping
@@ -38,13 +41,14 @@ public class AdminCommentController {
                                                               @RequestParam(defaultValue = "0", required = false) Integer from,
                                                               @RequestParam(defaultValue = "10", required = false) Integer size) {
         log.info("==> Comments with text={} from={} size={} for Admin was asked", text, from, size);
-        return new ArrayList<>();
+        return commentService.findAllCommentsByTextForAdmin(text, from, size);
     }
 
     @DeleteMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCommentByAdmin(@PathVariable @NotNull Long commentId) {
         log.info("==> Comments with id={} was deleted by Admin", commentId);
+        commentService.deleteCommentByAdmin(commentId);
     }
 
 }

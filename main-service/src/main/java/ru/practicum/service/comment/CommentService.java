@@ -1,6 +1,8 @@
 package ru.practicum.service.comment;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.comment.CommentDto;
 import ru.practicum.dto.comment.CommentFullDto;
@@ -12,7 +14,9 @@ import ru.practicum.mapper.comment.UtilCommentClass;
 import ru.practicum.model.Comment;
 import ru.practicum.repository.CommentRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -76,6 +80,35 @@ public class CommentService {
                 () -> new NotFoundException("Comment not found", "")
         );
         commentRepository.delete(comment);
+    }
+
+    public CommentFullDto getCommentForAdmin(Long commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() ->
+                new NotFoundException("Comment with id=" + commentId + " not found", ""));
+        return utilCommentClass.toCommentFullDto(comment);
+    }
+
+    public List<CommentFullDto> getAllUserCommentsForAdmin(Long userId, Integer from, Integer size) {
+        Pageable pageable = PageRequest.of(from/size, size);
+        List<Comment> allCommentsForUser = commentRepository.findAllByAuthorId(userId, pageable)
+                .orElse(new ArrayList<>());
+        return allCommentsForUser.stream().map(utilCommentClass::toCommentFullDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<CommentFullDto> findAllCommentsByTextForAdmin(String text, Integer from, Integer size) {
+        Pageable pageable = PageRequest.of(from/size, size);
+        List<Comment> allCommentsByText = commentRepository.findAllByText(text, pageable)
+                .orElse(new ArrayList<>());
+        return allCommentsByText.stream().map(utilCommentClass::toCommentFullDto)
+                .collect(Collectors.toList());
+    }
+
+    public void deleteCommentByAdmin(Long commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() ->
+                new NotFoundException("Comment with id=" + commentId + " not found", ""));
+        commentRepository.deleteById(commentId);
+
     }
 
 }
