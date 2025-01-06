@@ -43,7 +43,7 @@ public class PrivateCommentsController {
 
 
     @PatchMapping("/{comment-id}")
-    public CommentDto updateComment(@PathVariable @NotNull Long commentId,
+    public CommentDto updateComment(@PathVariable("comment-id") @NotNull Long commentId,
                                     @RequestParam @NotNull Long userId,
                                     @Valid @RequestBody UpdateCommentDto updateCommentDto) {
         log.info("Private: patch comment {}, userId {}", updateCommentDto, userId);
