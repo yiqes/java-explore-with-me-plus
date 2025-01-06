@@ -19,7 +19,7 @@ import java.util.List;
 @Slf4j
 public class AdminCommentController {
     private final CommentService commentService;
-    private final static String PATH = "comment-id";
+    private static final String PATH = "comment-id";
 
     @GetMapping("/{comment-id}")
     public CommentFullDto getCommentForAdmin(@PathVariable(PATH) @NotNull Long commentId) {
