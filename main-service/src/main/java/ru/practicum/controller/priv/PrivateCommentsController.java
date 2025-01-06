@@ -13,7 +13,6 @@ import ru.practicum.dto.comment.NewCommentDto;
 import ru.practicum.dto.comment.UpdateCommentDto;
 import ru.practicum.service.comment.CommentService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -25,9 +24,9 @@ public class PrivateCommentsController {
 
     private final CommentService commentService;
 
-    @PostMapping("/event/{eventId}")
+    @PostMapping("/event/{event-id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommentFullDto createComment(@PathVariable @NotNull Long eventId,
+    public CommentFullDto createComment(@PathVariable("event-id") @NotNull Long eventId,
                                         @RequestParam @NotNull Long userId,
                                         @Valid @RequestBody NewCommentDto newCommentDto) {
         log.info("Private: post comment {}, userId {}, eventId {}", newCommentDto, userId, eventId);
@@ -35,15 +34,15 @@ public class PrivateCommentsController {
         return commentService.createComment(newCommentDto, eventId, userId);
     }
 
-    @GetMapping("/{commentId}")
-    public CommentFullDto getComment(@PathVariable @NotNull Long commentId,
+    @GetMapping("/{comment-id}")
+    public CommentFullDto getComment(@PathVariable("comment-id") @NotNull Long commentId,
                                  @RequestParam @NotNull Long userId) {
         log.info("Private: get comment {}, userId {}", commentId, userId);
         return commentService.getComment(commentId, userId);
     }
 
 
-    @PatchMapping("/{commentId}")
+    @PatchMapping("/{comment-id}")
     public CommentDto updateComment(@PathVariable @NotNull Long commentId,
                                     @RequestParam @NotNull Long userId,
                                     @Valid @RequestBody UpdateCommentDto updateCommentDto) {
@@ -52,17 +51,17 @@ public class PrivateCommentsController {
     }
 
 
-    @GetMapping("/user/{userId}")
-    public List<CommentDto> getAllCommentsForUser(@PathVariable @NotNull Long userId,
+    @GetMapping("/user/{user-id}")
+    public List<CommentDto> getAllCommentsForUser(@PathVariable("user-id") @NotNull Long userId,
                                                   @RequestParam(defaultValue = "0", required = false) Integer from,
                                                   @RequestParam(defaultValue = "10", required = false) Integer size) {
         log.info("Private: get comments for user {}, from {}, size {}", userId, from, size);
         return commentService.getAllCommentsForUser(userId, from, size);
     }
 
-    @DeleteMapping("/{commentId}")
+    @DeleteMapping("/{comment-id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteComment(@PathVariable @NotNull Long commentId,
+    public void deleteComment(@PathVariable("comment-id") @NotNull Long commentId,
                               @RequestParam @NotNull Long userId) {
         log.info("Private: delete comment {}, userId {}", commentId, userId);
         commentService.deleteComment(commentId, userId);

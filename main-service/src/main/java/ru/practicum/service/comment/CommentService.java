@@ -89,7 +89,7 @@ public class CommentService {
     }
 
     public List<CommentFullDto> getAllUserCommentsForAdmin(Long userId, Integer from, Integer size) {
-        Pageable pageable = PageRequest.of(from/size, size);
+        Pageable pageable = PageRequest.of(from / size, size);
         List<Comment> allCommentsForUser = commentRepository.findAllByAuthorId(userId, pageable)
                 .orElse(new ArrayList<>());
         return allCommentsForUser.stream().map(utilCommentClass::toCommentFullDto)
@@ -97,7 +97,7 @@ public class CommentService {
     }
 
     public List<CommentFullDto> findAllCommentsByTextForAdmin(String text, Integer from, Integer size) {
-        Pageable pageable = PageRequest.of(from/size, size);
+        Pageable pageable = PageRequest.of(from / size, size);
         List<Comment> allCommentsByText = commentRepository.findAllByText(text, pageable)
                 .orElse(new ArrayList<>());
         return allCommentsByText.stream().map(utilCommentClass::toCommentFullDto)
