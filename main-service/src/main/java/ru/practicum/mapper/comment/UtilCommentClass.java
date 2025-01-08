@@ -29,11 +29,11 @@ public class UtilCommentClass {
         comment.setText(newCommentDto.getText());
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event not found", ""));
+                .orElseThrow(() -> new NotFoundException("Event with id = " + eventId + " not found!", ""));
         comment.setEvent(event);
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found", ""));
+                .orElseThrow(() -> new NotFoundException("User with id = " + userId + " not found!", ""));
         comment.setAuthor(user);
 
         if (newCommentDto.getParentComment() != null) {

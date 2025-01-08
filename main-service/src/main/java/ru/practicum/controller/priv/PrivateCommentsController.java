@@ -23,6 +23,7 @@ import java.util.List;
 public class PrivateCommentsController {
 
     private final CommentService commentService;
+    private static final String PATH = "{comment-id}";
 
     @PostMapping("/event/{event-id}")
     @ResponseStatus(HttpStatus.CREATED)
@@ -34,7 +35,7 @@ public class PrivateCommentsController {
         return commentService.createComment(newCommentDto, eventId, userId);
     }
 
-    @GetMapping("/{comment-id}")
+    @GetMapping(PATH)
     public CommentFullDto getComment(@PathVariable("comment-id") @NotNull Long commentId,
                                  @RequestParam @NotNull Long userId) {
         log.info("Private: get comment {}, userId {}", commentId, userId);
@@ -42,7 +43,7 @@ public class PrivateCommentsController {
     }
 
 
-    @PatchMapping("/{comment-id}")
+    @PatchMapping(PATH)
     public CommentDto updateComment(@PathVariable("comment-id") @NotNull Long commentId,
                                     @RequestParam @NotNull Long userId,
                                     @Valid @RequestBody UpdateCommentDto updateCommentDto) {
@@ -59,7 +60,7 @@ public class PrivateCommentsController {
         return commentService.getAllCommentsForUser(userId, from, size);
     }
 
-    @DeleteMapping("/{comment-id}")
+    @DeleteMapping(PATH)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(@PathVariable("comment-id") @NotNull Long commentId,
                               @RequestParam @NotNull Long userId) {
