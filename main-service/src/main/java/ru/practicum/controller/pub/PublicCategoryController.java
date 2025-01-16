@@ -13,6 +13,9 @@ import ru.practicum.service.category.CategoryService;
 
 import java.util.List;
 
+/**
+ * The type Public category controller.
+ */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -20,6 +23,13 @@ import java.util.List;
 public class PublicCategoryController {
     private final CategoryService categoryService;
 
+    /**
+     * Gets categories.
+     *
+     * @param from the from
+     * @param size the size
+     * @return the categories
+     */
     @GetMapping()
     List<CategoryDto> getCategories(@RequestParam(name = "from", defaultValue = "0") @PositiveOrZero int from,
                                     @RequestParam(name = "size", defaultValue = "10") @PositiveOrZero int size) {
@@ -29,6 +39,12 @@ public class PublicCategoryController {
         return categoriesDto;
     }
 
+    /**
+     * Gets category by id.
+     *
+     * @param catId the cat id
+     * @return the category by id
+     */
     @GetMapping("/{cat-id}")
     CategoryDto getCategoryById(@PathVariable("cat-id") Long catId) {
         log.info("==> getCategoryById = {}", catId);

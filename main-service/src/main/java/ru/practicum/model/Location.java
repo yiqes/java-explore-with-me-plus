@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+/**
+ * The type Location.
+ */
 @Entity
 @Table(name = "locations")
 @Data

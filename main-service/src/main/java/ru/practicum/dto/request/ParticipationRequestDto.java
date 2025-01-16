@@ -8,6 +8,9 @@ import ru.practicum.enums.RequestStatus;
 
 import java.time.LocalDateTime;
 
+/**
+ * The type Participation request dto.
+ */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ParticipationRequestDto {

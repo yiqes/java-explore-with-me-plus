@@ -14,17 +14,31 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The type Stat controller.
+ */
 @RestController
 @Slf4j
 public class StatController {
 
     private final StatService service;
 
+    /**
+     * Instantiates a new Stat controller.
+     *
+     * @param service the service
+     */
     @Autowired
     public StatController(StatService service) {
         this.service = service;
     }
 
+    /**
+     * Save info endpoint hit response dto.
+     *
+     * @param endpointHitDto the endpoint hit dto
+     * @return the endpoint hit response dto
+     */
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
     public EndpointHitResponseDto saveInfo(@RequestBody EndpointHitSaveRequestDto endpointHitDto) {
@@ -32,6 +46,15 @@ public class StatController {
         return service.saveInfo(endpointHitDto);
     }
 
+    /**
+     * Gets stats.
+     *
+     * @param start  the start
+     * @param end    the end
+     * @param uris   the uris
+     * @param unique the unique
+     * @return the stats
+     */
     @GetMapping("/stats")
     public List<ViewStatsDto> getStats(
             @RequestParam(value = "start", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,

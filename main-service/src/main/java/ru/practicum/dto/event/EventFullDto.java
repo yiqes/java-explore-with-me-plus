@@ -11,6 +11,9 @@ import ru.practicum.dto.location.LocationDto;
 import ru.practicum.dto.user.UserShortDto;
 import ru.practicum.state.EventState;
 
+/**
+ * The type Event full dto.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

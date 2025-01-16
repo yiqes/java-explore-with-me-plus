@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
+/**
+ * The type User dto.
+ */
 @Getter
 @Setter
 @EqualsAndHashCode(of = "email")

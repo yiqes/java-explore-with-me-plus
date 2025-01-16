@@ -7,6 +7,9 @@ import ru.practicum.state.EventState;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * The type Search events param admin.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

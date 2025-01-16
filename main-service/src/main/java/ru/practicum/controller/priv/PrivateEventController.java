@@ -17,6 +17,9 @@ import ru.practicum.service.event.EventService;
 
 import java.util.List;
 
+/**
+ * The type Private event controller.
+ */
 @Slf4j
 @Validated
 @RequiredArgsConstructor
@@ -28,6 +31,14 @@ public class PrivateEventController {
     private static final String EVENTID = "event-id";
     private final EventService eventService;
 
+    /**
+     * Gets events for user.
+     *
+     * @param userId the user id
+     * @param from   the from
+     * @param size   the size
+     * @return the events for user
+     */
     @GetMapping
     public List<EventShortDto> getEventsForUser(@PathVariable(USERID) Long userId,
                                                 @RequestParam(required = false, defaultValue = "0") Integer from,
@@ -36,6 +47,13 @@ public class PrivateEventController {
         return eventService.getEventsForUser(userId, from, size);
     }
 
+    /**
+     * Create event event full dto.
+     *
+     * @param userId   the user id
+     * @param eventDto the event dto
+     * @return the event full dto
+     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto createEvent(@PathVariable(USERID) Long userId,
@@ -44,12 +62,27 @@ public class PrivateEventController {
         return eventService.createEvent(userId, eventDto);
     }
 
+    /**
+     * Gets event by id for user.
+     *
+     * @param userId  the user id
+     * @param eventId the event id
+     * @return the event by id for user
+     */
     @GetMapping("{event-id}")
     public EventFullDto getEventByIdForUser(@PathVariable(USERID) Long userId, @PathVariable(EVENTID) Long eventId) {
         log.info("Private: get event userId {}, eventId {}", userId, eventId);
         return eventService.getEventByIdForUser(userId, eventId);
     }
 
+    /**
+     * Change event event full dto.
+     *
+     * @param eventId  the event id
+     * @param userId   the user id
+     * @param eventDto the event dto
+     * @return the event full dto
+     */
     @PatchMapping("{event-id}")
     public EventFullDto changeEvent(@PathVariable(EVENTID) Long eventId, @PathVariable(USERID) Long userId,
                                     @RequestBody @Valid UpdateEventAdminRequest eventDto) {
@@ -57,6 +90,13 @@ public class PrivateEventController {
         return eventService.changeEvent(userId, eventId, eventDto);
     }
 
+    /**
+     * Gets request by user and event.
+     *
+     * @param userId  the user id
+     * @param eventId the event id
+     * @return the request by user and event
+     */
     @GetMapping("/{event-id}/requests")
     public List<ParticipationRequestDto> getRequestByUserAndEvent(@PathVariable(USERID) Long userId,
                                                                   @PathVariable(EVENTID) Long eventId) {
@@ -64,6 +104,14 @@ public class PrivateEventController {
         return eventService.getRequestByUserAndEvent(userId, eventId);
     }
 
+    /**
+     * Request update status event request status update result.
+     *
+     * @param userId   the user id
+     * @param eventId  the event id
+     * @param eventDto the event dto
+     * @return the event request status update result
+     */
     @PatchMapping("/{event-id}/requests")
     public EventRequestStatusUpdateResult requestUpdateStatus(@PathVariable(USERID) Long userId,
                                                               @PathVariable(EVENTID) Long eventId,

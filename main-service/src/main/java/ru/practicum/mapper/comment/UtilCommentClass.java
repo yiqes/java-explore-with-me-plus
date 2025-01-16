@@ -15,6 +15,9 @@ import ru.practicum.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * The type Util comment class.
+ */
 @Component
 @RequiredArgsConstructor
 public class UtilCommentClass {
@@ -24,6 +27,14 @@ public class UtilCommentClass {
     private final EventRepository eventRepository;
 
 
+    /**
+     * To comment comment full dto.
+     *
+     * @param newCommentDto the new comment dto
+     * @param eventId       the event id
+     * @param userId        the user id
+     * @return the comment full dto
+     */
     public CommentFullDto toComment(NewCommentDto newCommentDto, Long eventId, Long userId) {
         Comment comment = new Comment();
         comment.setText(newCommentDto.getText());
@@ -51,6 +62,12 @@ public class UtilCommentClass {
         return toCommentFullDto(savedComment);
     }
 
+    /**
+     * To comment full dto comment full dto.
+     *
+     * @param comment the comment
+     * @return the comment full dto
+     */
     public CommentFullDto toCommentFullDto(Comment comment) {
         CommentFullDto dto = new CommentFullDto();
         dto.setId(comment.getId());
@@ -66,6 +83,12 @@ public class UtilCommentClass {
         return dto;
     }
 
+    /**
+     * From comment full dto comment.
+     *
+     * @param dto the dto
+     * @return the comment
+     */
     public Comment fromCommentFullDto(CommentFullDto dto) {
         Comment comment = new Comment();
         comment.setId(dto.getId());

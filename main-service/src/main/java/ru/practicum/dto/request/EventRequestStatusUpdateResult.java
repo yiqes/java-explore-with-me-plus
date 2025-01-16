@@ -4,8 +4,17 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * The type Event request status update result.
+ */
 @Data
 public class EventRequestStatusUpdateResult {
-        List<ParticipationRequestDto> confirmedRequests;
-        List<ParticipationRequestDto> rejectedRequests;
+    /**
+     * The Confirmed requests.
+     */
+    List<ParticipationRequestDto> confirmedRequests;
+    /**
+     * The Rejected requests.
+     */
+    List<ParticipationRequestDto> rejectedRequests;
 }

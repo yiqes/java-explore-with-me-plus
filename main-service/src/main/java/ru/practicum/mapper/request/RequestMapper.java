@@ -15,6 +15,9 @@ import ru.practicum.repository.UserRepository;
 
 import java.time.LocalDateTime;
 
+/**
+ * The type Request mapper.
+ */
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RequestMapper {
@@ -22,6 +25,12 @@ public class RequestMapper {
     UserRepository userRepository;
     EventRepository eventRepository;
 
+    /**
+     * Instantiates a new Request mapper.
+     *
+     * @param userRepository  the user repository
+     * @param eventRepository the event repository
+     */
     @Autowired
 
     public RequestMapper(UserRepository userRepository, EventRepository eventRepository) {
@@ -29,6 +38,12 @@ public class RequestMapper {
         this.eventRepository = eventRepository;
     }
 
+    /**
+     * To participation request dto participation request dto.
+     *
+     * @param request the request
+     * @return the participation request dto
+     */
     public ParticipationRequestDto toParticipationRequestDto(Request request) {
         return new ParticipationRequestDto(
                 request.getId(),
@@ -39,6 +54,14 @@ public class RequestMapper {
         );
     }
 
+    /**
+     * To request request.
+     *
+     * @param participationRequestDto the participation request dto
+     * @param requesterId             the requester id
+     * @param eventId                 the event id
+     * @return the request
+     */
     public Request toRequest(ParticipationRequestDto participationRequestDto, Long requesterId, Long eventId) {
         return new Request(
                 null,
@@ -50,6 +73,13 @@ public class RequestMapper {
         );
     }
 
+    /**
+     * Form user and event to request request.
+     *
+     * @param user  the user
+     * @param event the event
+     * @return the request
+     */
     public Request formUserAndEventToRequest(User user, Event event) {
         if (user == null || event == null) {
             return null;

@@ -9,7 +9,18 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * The interface Comment repository.
+ */
 public interface CommentRepository extends JpaRepository<Comment, Long> {
+    /**
+     * Find all by event id list.
+     *
+     * @param eventId the event id
+     * @param from    the from
+     * @param size    the size
+     * @return the list
+     */
     @Query(
             value = """
                     SELECT *
@@ -24,6 +35,14 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
                                    @Param("from") int from,
                                    @Param("size") int size);
 
+    /**
+     * Find all by user id list.
+     *
+     * @param userId the user id
+     * @param from   the from
+     * @param size   the size
+     * @return the list
+     */
     @Query(
             value = """
                     SELECT *
@@ -38,8 +57,22 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
                                   @Param("from") int from,
                                   @Param("size") int size);
 
+    /**
+     * Find all by author id optional.
+     *
+     * @param userId   the user id
+     * @param pageable the pageable
+     * @return the optional
+     */
     Optional<List<Comment>> findAllByAuthorId(Long userId, Pageable pageable);
 
+    /**
+     * Find all by text optional.
+     *
+     * @param text     the text
+     * @param pageable the pageable
+     * @return the optional
+     */
     @Query("SELECT c FROM Comment c WHERE LOWER(c.text) LIKE CONCAT('%', LOWER(:text), '%')")
     Optional<List<Comment>> findAllByText(String text, Pageable pageable);
 }

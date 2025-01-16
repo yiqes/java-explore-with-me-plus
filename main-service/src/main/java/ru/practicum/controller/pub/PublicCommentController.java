@@ -10,6 +10,9 @@ import ru.practicum.service.comment.CommentService;
 
 import java.util.List;
 
+/**
+ * The type Public comment controller.
+ */
 @RestController
 @RequestMapping("/comment")
 @AllArgsConstructor
@@ -18,6 +21,14 @@ import java.util.List;
 public class PublicCommentController {
     private final CommentService commentService;
 
+    /**
+     * Gets all comments for event.
+     *
+     * @param eventId the event id
+     * @param from    the from
+     * @param size    the size
+     * @return the all comments for event
+     */
     @GetMapping("/event/{event-id}")
     public List<CommentDto> getAllCommentsForEvent(@PathVariable("event-id") @NotNull Long eventId,
                                                    @RequestParam(defaultValue = "0", required = false) Integer from,

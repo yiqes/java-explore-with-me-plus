@@ -16,6 +16,9 @@ import ru.practicum.repository.EventRepository;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * The type Compilation service.
+ */
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)

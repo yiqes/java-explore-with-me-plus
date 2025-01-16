@@ -7,10 +7,19 @@ import ru.practicum.enums.RequestStatus;
 
 import java.util.Set;
 
+/**
+ * The type Event request status update request.
+ */
 @Data
 public class EventRequestStatusUpdateRequest {
-        @NotEmpty
+    /**
+     * The Request ids.
+     */
+    @NotEmpty
         Set<Long> requestIds;
-        @NotNull
+    /**
+     * The Status.
+     */
+    @NotNull
         RequestStatus status;
 }

@@ -9,6 +9,9 @@ import lombok.experimental.FieldDefaults;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The type New compilation dto.
+ */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NewCompilationDto {

@@ -21,6 +21,9 @@ import ru.practicum.service.user.UserService;
 
 import java.util.List;
 
+/**
+ * The type Admin user controller.
+ */
 @RestController
 @RequestMapping(path = "/admin/users")
 @Slf4j
@@ -29,6 +32,12 @@ public class AdminUserController {
 
     private final UserService userService;
 
+    /**
+     * Add user dto.
+     *
+     * @param newUserRequest the new user request
+     * @return the user dto
+     */
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     UserDto add(@RequestBody @Valid NewUserRequest newUserRequest) {
@@ -39,6 +48,14 @@ public class AdminUserController {
         return userDto;
     }
 
+    /**
+     * Gets users.
+     *
+     * @param ids  the ids
+     * @param from the from
+     * @param size the size
+     * @return the users
+     */
     @GetMapping()
     List<UserDto> getUsers(@RequestParam(required = false, name = "ids") List<Long> ids,
                            @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero int from,
@@ -49,6 +66,11 @@ public class AdminUserController {
         return userDtos;
     }
 
+    /**
+     * Delete.
+     *
+     * @param userId the user id
+     */
     @DeleteMapping("/{user-id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void delete(@PathVariable("user-id") @Positive long userId) {

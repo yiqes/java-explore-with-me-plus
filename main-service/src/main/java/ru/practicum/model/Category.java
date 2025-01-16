@@ -12,6 +12,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+/**
+ * The type Category.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

@@ -18,6 +18,9 @@ import ru.practicum.dto.compilation.NewCompilationDto;
 import ru.practicum.dto.compilation.UpdateCompilationRequest;
 import ru.practicum.service.compilation.CompilationService;
 
+/**
+ * The type Admin compilation controller.
+ */
 @RestController
 @RequestMapping(path = "/admin/compilations")
 @Slf4j
@@ -27,6 +30,12 @@ public class AdminCompilationController {
     private static final String PATH = "comp-id";
     private final CompilationService compilationService;
 
+    /**
+     * Add compilation dto.
+     *
+     * @param newCompilationDto the new compilation dto
+     * @return the compilation dto
+     */
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     CompilationDto add(@RequestBody @Valid NewCompilationDto newCompilationDto) {
@@ -37,6 +46,11 @@ public class AdminCompilationController {
         return compilationDto;
     }
 
+    /**
+     * Delete.
+     *
+     * @param compId the comp id
+     */
     @DeleteMapping("/{comp-id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void delete(@PathVariable(PATH) @Positive long compId) {
@@ -44,6 +58,13 @@ public class AdminCompilationController {
         compilationService.delete(compId);
     }
 
+    /**
+     * Update compilation dto.
+     *
+     * @param compId                   the comp id
+     * @param updateCompilationRequest the update compilation request
+     * @return the compilation dto
+     */
     @PatchMapping("/{comp-id}")
     CompilationDto update(@PathVariable(PATH) @Positive long compId,
                           @RequestBody @Valid UpdateCompilationRequest updateCompilationRequest) {

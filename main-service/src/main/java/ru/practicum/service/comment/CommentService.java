@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * The type Comment service.
+ */
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -25,6 +28,14 @@ public class CommentService {
     private final CommentMapper commentMapper;
     private final UtilCommentClass utilCommentClass;
 
+    /**
+     * Gets all comments for event.
+     *
+     * @param eventId the event id
+     * @param from    the from
+     * @param size    the size
+     * @return the all comments for event
+     */
     public List<CommentDto> getAllCommentsForEvent(Long eventId, int from, int size) {
         // Проверка корректности параметров
         if (from < 0 || size <= 0) {
@@ -40,6 +51,14 @@ public class CommentService {
                 .toList();
     }
 
+    /**
+     * Create comment comment full dto.
+     *
+     * @param newCommentDto the new comment dto
+     * @param eventId       the event id
+     * @param userId        the user id
+     * @return the comment full dto
+     */
     public CommentFullDto createComment(NewCommentDto newCommentDto, Long eventId, Long userId) {
         CommentFullDto commentFullDto = utilCommentClass.toComment(newCommentDto, eventId, userId);
         Comment comment = utilCommentClass.fromCommentFullDto(commentFullDto);
@@ -47,6 +66,13 @@ public class CommentService {
         return utilCommentClass.toCommentFullDto(comment);
     }
 
+    /**
+     * Gets comment.
+     *
+     * @param commentId the comment id
+     * @param userId    the user id
+     * @return the comment
+     */
     public CommentFullDto getComment(Long commentId, Long userId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new NotFoundException("Comment not found", "")
@@ -54,6 +80,14 @@ public class CommentService {
         return utilCommentClass.toCommentFullDto(comment);
     }
 
+    /**
+     * Gets all comments for user.
+     *
+     * @param userId the user id
+     * @param from   the from
+     * @param size   the size
+     * @return the all comments for user
+     */
     public List<CommentDto> getAllCommentsForUser(Long userId, int from, int size) {
         if (from < 0 || size <= 0) {
             throw new IllegalArgumentException("'from' должен быть >= 0, а 'size' > 0");
@@ -66,6 +100,14 @@ public class CommentService {
                 .toList();
     }
 
+    /**
+     * Update comment comment dto.
+     *
+     * @param commentId        the comment id
+     * @param userId           the user id
+     * @param updateCommentDto the update comment dto
+     * @return the comment dto
+     */
     public CommentDto updateComment(Long commentId, Long userId, UpdateCommentDto updateCommentDto) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new NotFoundException("Comment not found", "")
@@ -75,6 +117,12 @@ public class CommentService {
         return commentMapper.toDto(comment);
     }
 
+    /**
+     * Delete comment.
+     *
+     * @param commentId the comment id
+     * @param userId    the user id
+     */
     public void deleteComment(Long commentId, Long userId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new NotFoundException("Comment not found", "")
@@ -82,12 +130,26 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
+    /**
+     * Gets comment for admin.
+     *
+     * @param commentId the comment id
+     * @return the comment for admin
+     */
     public CommentFullDto getCommentForAdmin(Long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() ->
                 new NotFoundException("Comment with id=" + commentId + " not found", ""));
         return utilCommentClass.toCommentFullDto(comment);
     }
 
+    /**
+     * Gets all user comments for admin.
+     *
+     * @param userId the user id
+     * @param from   the from
+     * @param size   the size
+     * @return the all user comments for admin
+     */
     public List<CommentFullDto> getAllUserCommentsForAdmin(Long userId, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
         List<Comment> allCommentsForUser = commentRepository.findAllByAuthorId(userId, pageable)
@@ -96,6 +158,14 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Find all comments by text for admin list.
+     *
+     * @param text the text
+     * @param from the from
+     * @param size the size
+     * @return the list
+     */
     public List<CommentFullDto> findAllCommentsByTextForAdmin(String text, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
         List<Comment> allCommentsByText = commentRepository.findAllByText(text, pageable)
@@ -104,6 +174,11 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Delete comment by admin.
+     *
+     * @param commentId the comment id
+     */
     public void deleteCommentByAdmin(Long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() ->
                 new NotFoundException("Comment with id=" + commentId + " not found", ""));

@@ -20,6 +20,9 @@ import ru.practicum.state.EventState;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * The type Util event class.
+ */
 @Component
 @RequiredArgsConstructor
 public class UtilEventClass {
@@ -34,6 +37,15 @@ public class UtilEventClass {
 
     private final LocationMapper locationMapper;
 
+    /**
+     * To event from new event dto event.
+     *
+     * @param newEventDto the new event dto
+     * @param user        the user
+     * @param category    the category
+     * @param location    the location
+     * @return the event
+     */
     public Event toEventFromNewEventDto(NewEventDto newEventDto, User user, CategoryDto category, Location location) {
         if (newEventDto == null || user == null || category == null || location == null) {
             return null;
@@ -59,6 +71,12 @@ public class UtilEventClass {
         return event;
     }
 
+    /**
+     * Update event from dto.
+     *
+     * @param event                   the event
+     * @param updateEventAdminRequest the update event admin request
+     */
     public void updateEventFromDto(Event event, UpdateEventAdminRequest updateEventAdminRequest) {
         if (updateEventAdminRequest == null || event == null) {
             return;
@@ -94,6 +112,15 @@ public class UtilEventClass {
         }
     }
 
+    /**
+     * Update event event.
+     *
+     * @param updatedEvent the updated event
+     * @param request      the request
+     * @param newCategory  the new category
+     * @param location     the location
+     * @return the event
+     */
     public Event updateEvent(Event updatedEvent, UpdateEventAdminRequest request, Category newCategory,
                              Location location) {
         return Event.builder()
@@ -118,6 +145,12 @@ public class UtilEventClass {
                 .build();
     }
 
+    /**
+     * To event full dto event full dto.
+     *
+     * @param event the event
+     * @return the event full dto
+     */
     public EventFullDto toEventFullDto(Event event) {
         if (event == null) {
             return null;

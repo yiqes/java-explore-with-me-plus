@@ -6,6 +6,9 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
+/**
+ * The type Endpoint hit.
+ */
 @Setter
 @Getter
 @Entity

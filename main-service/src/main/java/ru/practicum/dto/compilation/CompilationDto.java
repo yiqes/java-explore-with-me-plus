@@ -11,6 +11,9 @@ import ru.practicum.dto.event.EventShortDto;
 
 import java.util.List;
 
+/**
+ * The type Compilation dto.
+ */
 @Setter
 @Getter
 @ToString

@@ -13,6 +13,9 @@ import ru.practicum.state.AdminStateAction;
 
 import java.time.LocalDateTime;
 
+/**
+ * The type Update event admin request.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -36,6 +39,11 @@ public class UpdateEventAdminRequest {
     @Length(min = 3, max = 120)
     String title;
 
+    /**
+     * Validate event date boolean.
+     *
+     * @return the boolean
+     */
     @AssertTrue(message = "Event date must be at least two hours from now")
     public boolean validateEventDate() {
         if (eventDate == null) {

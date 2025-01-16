@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+/**
+ * The type Endpoint hit response dto.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
