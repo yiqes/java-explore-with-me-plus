@@ -17,6 +17,9 @@ import ru.practicum.service.event.EventService;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * The type Public event controller.
+ */
 @RestController
 @RequestMapping("/events")
 @RequiredArgsConstructor
@@ -24,6 +27,21 @@ import java.util.List;
 public class PublicEventController {
     private final EventService eventService;
 
+    /**
+     * Gets events.
+     *
+     * @param text          the text
+     * @param categories    the categories
+     * @param paid          the paid
+     * @param rangeStart    the range start
+     * @param rangeEnd      the range end
+     * @param onlyAvailable the only available
+     * @param sort          the sort
+     * @param from          the from
+     * @param size          the size
+     * @param request       the request
+     * @return the events
+     */
     @GetMapping
     public List<EventShortDto> getEvents(
             @RequestParam(required = false) String text,
@@ -54,6 +72,13 @@ public class PublicEventController {
         return eventService.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, clientIp);
     }
 
+    /**
+     * Gets event by id.
+     *
+     * @param eventId the event id
+     * @param request the request
+     * @return the event by id
+     */
     @GetMapping("/{event-id}")
     public EventFullDto getEventById(@PathVariable("event-id") Long eventId, HttpServletRequest request) {
         log.info("Получение информации о событии с id={}", eventId);

@@ -10,6 +10,9 @@ import ru.practicum.service.event.EventService;
 
 import java.util.List;
 
+/**
+ * The type Private request controller.
+ */
 @Slf4j
 @Validated
 @RestController
@@ -19,12 +22,25 @@ public class PrivateRequestController {
 
     private final EventService eventService;
 
+    /**
+     * Gets request by user.
+     *
+     * @param userId the user id
+     * @return the request by user
+     */
     @GetMapping
     public List<ParticipationRequestDto> getRequestByUser(@PathVariable("user-id") Long userId) {
         log.info("Private: get request by user {}", userId);
         return eventService.getRequestByUserId(userId);
     }
 
+    /**
+     * Create request by user participation request dto.
+     *
+     * @param userId  the user id
+     * @param eventId the event id
+     * @return the participation request dto
+     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto createRequestByUser(@PathVariable(value = "user-id") Long userId,
@@ -33,6 +49,13 @@ public class PrivateRequestController {
         return eventService.createRequest(userId, eventId);
     }
 
+    /**
+     * Cancel request participation request dto.
+     *
+     * @param userId    the user id
+     * @param requestId the request id
+     * @return the participation request dto
+     */
     @PatchMapping("/{request-id}/cancel")
     public ParticipationRequestDto cancelRequest(@PathVariable("user-id") Long userId, @PathVariable("request-id") Long requestId) {
         log.info("Private: patch request cancel user {}, request {}", userId, requestId);

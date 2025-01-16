@@ -9,6 +9,9 @@ import ru.practicum.state.EventState;
 
 import java.time.LocalDateTime;
 
+/**
+ * The type Event.
+ */
 @Entity
 @Table(name = "events")
 @Getter

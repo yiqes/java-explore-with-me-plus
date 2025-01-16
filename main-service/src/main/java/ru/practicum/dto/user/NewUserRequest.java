@@ -12,6 +12,9 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
+/**
+ * The type New user request.
+ */
 @Setter
 @Getter
 @ToString

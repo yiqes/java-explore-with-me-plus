@@ -5,6 +5,9 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
 
+/**
+ * The type Update comment dto.
+ */
 @Getter
 @Setter
 @AllArgsConstructor

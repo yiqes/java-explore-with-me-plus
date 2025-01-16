@@ -51,6 +51,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * The type Event service.
+ */
 @Slf4j
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -68,6 +71,21 @@ public class EventServiceImpl implements EventService {
     CategoryRepository categoryRepository;
     StatClient statClient;
 
+    /**
+     * Instantiates a new Event service.
+     *
+     * @param eventRepository       the event repository
+     * @param userRepository        the user repository
+     * @param requestRepository     the request repository
+     * @param requestMapper         the request mapper
+     * @param eventMapper           the event mapper
+     * @param categoryService       the category service
+     * @param utilEventClass        the util event class
+     * @param locationRepository    the location repository
+     * @param searchEventRepository the search event repository
+     * @param categoryRepository    the category repository
+     * @param statClient            the stat client
+     */
     @Autowired
     public EventServiceImpl(EventRepository eventRepository, UserRepository userRepository,
                             RequestRepository requestRepository, RequestMapper requestMapper,

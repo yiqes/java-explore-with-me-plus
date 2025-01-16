@@ -9,9 +9,18 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+/**
+ * The type Error handler.
+ */
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
+    /**
+     * Handle throwable error response.
+     *
+     * @param throwable the throwable
+     * @return the error response
+     */
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowable(final Throwable throwable) {
@@ -23,6 +32,12 @@ public class ErrorHandler {
         return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, throwable.getMessage(), stackTrace);
     }
 
+    /**
+     * Handle illegal argument exception error response.
+     *
+     * @param e the e
+     * @return the error response
+     */
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIllegalArgumentException(final IllegalArgumentException e) {

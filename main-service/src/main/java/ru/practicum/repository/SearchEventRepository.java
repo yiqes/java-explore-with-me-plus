@@ -13,11 +13,20 @@ import ru.practicum.model.Event;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The type Search event repository.
+ */
 @Repository
 @AllArgsConstructor
 public class SearchEventRepository {
     private final EntityManager entityManager;
 
+    /**
+     * Gets events by param for admin.
+     *
+     * @param parameters the parameters
+     * @return the events by param for admin
+     */
     public List<Event> getEventsByParamForAdmin(SearchEventsParamAdmin parameters) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = criteriaBuilder.createQuery(Event.class);

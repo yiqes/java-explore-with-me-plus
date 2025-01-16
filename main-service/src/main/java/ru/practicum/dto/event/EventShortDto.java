@@ -8,6 +8,9 @@ import lombok.experimental.FieldDefaults;
 import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.user.UserShortDto;
 
+/**
+ * The type Event short dto.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

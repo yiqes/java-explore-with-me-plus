@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * The type New category dto.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

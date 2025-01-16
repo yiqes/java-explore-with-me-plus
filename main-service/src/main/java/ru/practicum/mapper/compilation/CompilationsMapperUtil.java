@@ -11,12 +11,21 @@ import ru.practicum.model.Compilation;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The type Compilations mapper util.
+ */
 @Component
 @Named("CompilationsMapperUtil")
 @RequiredArgsConstructor
 public class CompilationsMapperUtil {
     private final EventMapper eventMapper;
 
+    /**
+     * Gets event short dtos.
+     *
+     * @param compilation the compilation
+     * @return the event short dtos
+     */
     @Named("getEventShortDtos")
     List<EventShortDto> getEventShortDtos(Compilation compilation) {
         if (compilation.getEvents().isEmpty()) {

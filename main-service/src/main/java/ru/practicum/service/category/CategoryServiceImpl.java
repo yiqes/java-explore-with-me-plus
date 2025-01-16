@@ -19,6 +19,9 @@ import ru.practicum.repository.EventRepository;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * The type Category service.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -30,6 +33,9 @@ public class CategoryServiceImpl implements CategoryService {
     EventRepository eventRepository;
     CategoryMapper categoryMapper;
 
+    /**
+     * The Category not found.
+     */
     static final String CATEGORY_NOT_FOUND = "Категория с id = %d не найдена";
 
     @Transactional

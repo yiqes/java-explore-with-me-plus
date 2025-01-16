@@ -3,6 +3,9 @@ package ru.practicum.dto.comment;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+/**
+ * The type Comment dto.
+ */
 @Getter
 @Setter
 @AllArgsConstructor

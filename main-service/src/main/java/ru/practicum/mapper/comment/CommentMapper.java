@@ -8,9 +8,18 @@ import ru.practicum.mapper.event.EventMapper;
 import ru.practicum.mapper.user.UserMapper;
 import ru.practicum.model.Comment;
 
+/**
+ * The interface Comment mapper.
+ */
 @Mapper(componentModel = "spring", uses = {UserMapper.class, EventMapper.class})
 public interface CommentMapper {
 
+    /**
+     * To dto comment dto.
+     *
+     * @param comment the comment
+     * @return the comment dto
+     */
     @Mapping(target = "id", source = "id")
     @Mapping(target = "author", source = "author.name")
     @Mapping(target = "text", source = "text")
@@ -19,6 +28,12 @@ public interface CommentMapper {
     @Mapping(target = "replyComment", source = "parent", qualifiedByName = "toDtoRecursive")
     CommentDto toDto(Comment comment);
 
+    /**
+     * To dto recursive comment dto.
+     *
+     * @param comment the comment
+     * @return the comment dto
+     */
     @Named("toDtoRecursive")
     @Mapping(target = "id", source = "id")
     @Mapping(target = "author", source = "author.name")

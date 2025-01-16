@@ -6,6 +6,9 @@ import ru.practicum.model.Comment;
 import ru.practicum.model.Event;
 import ru.practicum.model.User;
 
+/**
+ * The type Comment full dto.
+ */
 @Getter
 @Setter
 @AllArgsConstructor

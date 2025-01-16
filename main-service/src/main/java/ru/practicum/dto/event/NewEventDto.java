@@ -12,6 +12,9 @@ import ru.practicum.model.Location;
 
 import java.time.LocalDateTime;
 
+/**
+ * The type New event dto.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -40,6 +43,11 @@ public class NewEventDto {
     @Length(min = 3, max = 120)
     String title;
 
+    /**
+     * Validate event date boolean.
+     *
+     * @return the boolean
+     */
     @AssertTrue(message = "Event date must be at least two hours from now")
     public boolean validateEventDate() {
         if (eventDate == null) {

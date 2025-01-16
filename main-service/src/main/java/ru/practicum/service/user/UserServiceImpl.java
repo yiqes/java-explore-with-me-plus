@@ -18,6 +18,9 @@ import ru.practicum.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * The type User service.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional

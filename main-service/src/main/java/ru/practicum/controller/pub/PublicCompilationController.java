@@ -15,6 +15,9 @@ import ru.practicum.service.compilation.CompilationService;
 
 import java.util.List;
 
+/**
+ * The type Public compilation controller.
+ */
 @RestController
 @RequestMapping(path = "/compilations")
 @Slf4j
@@ -23,6 +26,14 @@ public class PublicCompilationController {
 
     private final CompilationService compilationService;
 
+    /**
+     * Gets compilations.
+     *
+     * @param pinned the pinned
+     * @param from   the from
+     * @param size   the size
+     * @return the compilations
+     */
     @GetMapping()
     List<CompilationDto> getCompilations(@RequestParam(required = false, name = "pinned") @Valid Boolean pinned,
                                          @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero int from,
@@ -34,6 +45,12 @@ public class PublicCompilationController {
         return compilationDtos;
     }
 
+    /**
+     * Get compilation dto.
+     *
+     * @param compId the comp id
+     * @return the compilation dto
+     */
     @GetMapping("/{comp-id}")
     CompilationDto get(@PathVariable("comp-id") @Positive long compId) {
         log.info("==> get by compId = {}", compId);

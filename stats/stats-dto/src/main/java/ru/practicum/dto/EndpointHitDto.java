@@ -11,6 +11,9 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
+/**
+ * The type Endpoint hit dto.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,7 +32,15 @@ public class EndpointHitDto {
     String ip;
     LocalDateTime timestamp;
 
-    // Дополнительный конструктор без id
+    /**
+     * Instantiates a new Endpoint hit dto.
+     *
+     * @param app       the app
+     * @param uri       the uri
+     * @param ip        the ip
+     * @param timestamp the timestamp
+     */
+// Дополнительный конструктор без id
     public EndpointHitDto(String app, String uri, String ip, LocalDateTime timestamp) {
         this.app = app;
         this.uri = uri;

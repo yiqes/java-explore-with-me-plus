@@ -7,6 +7,9 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
+/**
+ * The type Update compilation request.
+ */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateCompilationRequest {

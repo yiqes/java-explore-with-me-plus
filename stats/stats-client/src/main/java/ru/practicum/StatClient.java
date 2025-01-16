@@ -11,16 +11,27 @@ import ru.practicum.dto.ViewStatsDto;
 
 import java.util.List;
 
+/**
+ * The type Stat client.
+ */
 @Service
 @Slf4j
 public class StatClient {
     private final RestClient restClient;
 
+    /**
+     * Instantiates a new Stat client.
+     */
     public StatClient() {
         String clientUrl = "http://stats-server:9090";
         this.restClient = RestClient.builder().baseUrl(clientUrl).build();
     }
 
+    /**
+     * Send hit.
+     *
+     * @param endpointHitDto the endpoint hit dto
+     */
     public void sendHit(EndpointHitDto endpointHitDto) {
         try {
             restClient.post()
@@ -36,6 +47,15 @@ public class StatClient {
         }
     }
 
+    /**
+     * Gets stats.
+     *
+     * @param start  the start
+     * @param end    the end
+     * @param uris   the uris
+     * @param unique the unique
+     * @return the stats
+     */
     public List<ViewStatsDto> getStats(String start, String end, List<String> uris, boolean unique) {
         try {
             var uriBuilder = UriComponentsBuilder.fromPath("/stats")
@@ -59,6 +79,12 @@ public class StatClient {
         }
     }
 
+    /**
+     * Gets log message.
+     *
+     * @param goal the goal
+     * @return the log message
+     */
     public String getLogMessage(String goal) {
         if (goal.equals("запись")) {
             return "Ошибка записи статистики посещений: ";

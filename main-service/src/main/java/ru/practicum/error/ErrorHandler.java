@@ -15,10 +15,19 @@ import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.util.Collections;
 
+/**
+ * The type Error handler.
+ */
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
 
+    /**
+     * Handle not found exception api error.
+     *
+     * @param e the e
+     * @return the api error
+     */
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiError handleNotFoundException(final NotFoundException e) {
@@ -36,6 +45,12 @@ public class ErrorHandler {
         );
     }
 
+    /**
+     * Handle conflict exception api error.
+     *
+     * @param e the e
+     * @return the api error
+     */
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleConflictException(final ConflictException e) {
@@ -53,6 +68,12 @@ public class ErrorHandler {
         );
     }
 
+    /**
+     * Handle forbidden exception api error.
+     *
+     * @param e the e
+     * @return the api error
+     */
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ApiError handleForbiddenException(final ForbiddenException e) {
@@ -70,6 +91,12 @@ public class ErrorHandler {
         );
     }
 
+    /**
+     * Handle validation exception api error.
+     *
+     * @param e the e
+     * @return the api error
+     */
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handleValidationException(final ValidationException e) {

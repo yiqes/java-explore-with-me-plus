@@ -8,6 +8,9 @@ import ru.practicum.enums.RequestStatus;
 import java.time.LocalDateTime;
 
 
+/**
+ * The type Request.
+ */
 @Getter
 @Setter
 @AllArgsConstructor
